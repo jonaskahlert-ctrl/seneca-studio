@@ -13,11 +13,12 @@ Dieses Dokument beschreibt in einfacher Sprache die Vorgaben für das tägliche 
 - **Lesehilfen**: Zentrale Zahlen und Begriffe mit `[BETONUNG]` hervorheben, kurze Sprechpausen mit `[ATEMPAUSE]` markieren.
 
 ## 2. Kamera & Ton (Vorprüfung)
-- **Bildausschnitt**: Sprecher mittig im Bild, damit beim späteren 9:16-Hochformat links und rechts nichts abgeschnitten wird.
-- **Beleuchtung**: Helles, klares Licht von vorn; normales Büro- oder Tageslicht genügt.
-- **Hintergrund**: Aufgeräumter Arbeitsplatz oder ruhiger Raumhintergrund.
-- **Mikrofon & Lautstärke**:Präsente, gut verständliche Stimme ohne Übersteuern (Zielbereich ca. -26 bis -12 LUFS).
-- **Sprechtempo**: Lebendiges, flüssiges Sprechtempo (ca. 110 bis 165 Wörter pro Minute).
+- **Blickkontakt**: Direkter, präsenter Blick genau in die Kameralinse (nicht zur Seite oder nach unten schauen).
+- **Bildausschnitt**: Sprecher mittig im Bild zentriert, damit beim späteren 9:16-Hochformat links und rechts nichts abgeschnitten wird.
+- **Beleuchtung**: Helles, klares Licht von vorn ohne dunkle Gesichtsschatten oder blendendes Gegenlicht.
+- **Hintergrund**: Aufgeräumter Arbeitsplatz oder ruhiger Raumhintergrund ohne störende Gegenstände.
+- **Mikrofon & Lautstärke**: Präsente, gut verständliche Stimme ohne Übersteuern (Zielbereich ca. -24 bis -12 LUFS).
+- **Sprechtempo**: Lebendiges, flüssiges Sprechtempo (ca. 110 bis 160 Wörter pro Minute).
 
 ## 3. Automatischer Rohschnitt
 - **Versprecher entfernen**: Bei Korrekturen oder Neustarts wird automatisch nur die saubere Fassung übernommen.

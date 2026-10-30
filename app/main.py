@@ -13,11 +13,11 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-PROJECT_ID = os.environ.get("PROJECT_ID", "YOUR_GCP_PROJECT_ID")
-PROJECT_NUMBER = os.environ.get("PROJECT_NUMBER", "YOUR_GCP_PROJECT_NUMBER")
+PROJECT_ID = os.environ.get("PROJECT_ID", "your-gcp-project-id")
+PROJECT_NUMBER = os.environ.get("PROJECT_NUMBER", "000000000000")
 SKILL_LOCATION = os.environ.get("SKILL_LOCATION", "europe-west4")
 VERTEX_LOCATION = os.environ.get("VERTEX_LOCATION", "europe-west4")
-AGENT_ID = os.environ.get("AGENT_ID", "seneca-studio-agent")
+AGENT_ID = os.environ.get("AGENT_ID", "seneca-seneca-studio-agent")
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(APP_DIR)
@@ -29,9 +29,9 @@ app = FastAPI(title="Seneca Studio Prototype (Live Webcam + Skill Registry)")
 app.mount("/static", StaticFiles(directory=os.path.join(APP_DIR, "static")), name="static")
 
 DEFAULT_TELEPROMPTER_SCRIPTS: Dict[str, Dict[str, Any]] = {
-    "seneca-show-aktuell": {
-        "show_id": "seneca-show-aktuell",
-        "title": "Format Aktuell — Die neue Realität an der Ostfront bei Pokrowsk",
+    "seneca-show-analyse-kompakt": {
+        "show_id": "seneca-show-analyse-kompakt",
+        "title": "Analyse Kompakt — Die neue Realität an der Ostfront bei Pokrowsk",
         "article_text": (
             "An der Ostfront bei Pokrowsk verschiebt sich die militärische Dynamik spürbar. "
             "Während im ersten Kriegsjahr noch grosse Panzerverbände und geschlossene Artillerieduelle das Bild prägten, "
@@ -99,7 +99,7 @@ DEFAULT_TELEPROMPTER_SCRIPTS: Dict[str, Dict[str, Any]] = {
     },
     "seneca-show-finanz-kompakt": {
         "show_id": "seneca-show-finanz-kompakt",
-        "title": "Finanz Kompakt — Frankenstärke und SNB-Zinsentscheid",
+        "title": "Seneca Finanz Kompakt — Frankenstärke und SNB-Zinsentscheid",
         "article_text": (
             "Der Schweizer Franken bleibt gegenüber dem Euro und dem Dollar auf hohem Niveau. "
             "Während Konsumenten von günstigeren Importen und tiefer Inflation profitieren, gerät die Schweizer Exportindustrie zunehmend unter Margendruck. "
@@ -145,7 +145,7 @@ DEFAULT_TELEPROMPTER_SCRIPTS: Dict[str, Dict[str, Any]] = {
                 "section": "04 FAZIT FÜR ANLEGER",
                 "spoken_text": (
                     "Für Anleger heisst das: [BETONUNG] QUALITÄTSTITEL mit hoher Preismacht bleiben im Vorteil. [ATEMPAUSE] "
-                    "Die vollständige Analyse lesen Sie jetzt auf unserem Nachrichtenportal."
+                    "Die vollständige Analyse lesen Sie jetzt auf Seneca Studio."
                 ),
                 "duration_sec": 14,
             },
@@ -167,7 +167,7 @@ def persist_teleprompter_script(script_obj: Dict[str, Any]) -> Dict[str, Any]:
         lines.append(f"\n[{seg.get('section', '')}]\n{seg.get('spoken_text', '')}\n")
     with open(txt_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    show_id = script_obj.get("show_id", "seneca-show-aktuell")
+    show_id = script_obj.get("show_id", "seneca-show-analyse-kompakt")
     SESSION_STATE.setdefault("teleprompter_scripts", {})[show_id] = script_obj
     return script_obj
 
@@ -181,7 +181,7 @@ SESSION_STATE: Dict[str, Any] = {
         k: dict(v) for k, v in DEFAULT_TELEPROMPTER_SCRIPTS.items()
     },
 }
-persist_teleprompter_script(dict(DEFAULT_TELEPROMPTER_SCRIPTS["seneca-show-aktuell"]))
+persist_teleprompter_script(dict(DEFAULT_TELEPROMPTER_SCRIPTS["seneca-show-analyse-kompakt"]))
 
 
 def get_gcp_token() -> str:
@@ -231,6 +231,7 @@ def call_gemini_json(
     system_instruction: str,
     media_parts: Optional[List[Dict[str, Any]]] = None,
     model: str = "gemini-2.5-flash",
+    thinking_budget: int = 0,
 ) -> Dict[str, Any]:
     token = get_gcp_token()
     parts: List[Dict[str, Any]] = []
@@ -244,7 +245,7 @@ def call_gemini_json(
         "generationConfig": {
             "temperature": 0.1,
             "responseMimeType": "application/json",
-            "thinkingConfig": {"thinkingBudget": 0},
+            "thinkingConfig": {"thinkingBudget": thinking_budget},
         },
     }
     url = (
@@ -510,10 +511,10 @@ async def update_skill(skill_id: str, request: Request):
 
 
 @app.get("/api/script")
-async def get_script(show_id: str = "seneca-show-aktuell"):
+async def get_script(show_id: str = "seneca-show-analyse-kompakt"):
     scripts = SESSION_STATE.get("teleprompter_scripts", {})
     sc = scripts.get(show_id) or DEFAULT_TELEPROMPTER_SCRIPTS.get(
-        show_id, DEFAULT_TELEPROMPTER_SCRIPTS["seneca-show-aktuell"]
+        show_id, DEFAULT_TELEPROMPTER_SCRIPTS["seneca-show-analyse-kompakt"]
     )
     return persist_teleprompter_script(dict(sc))
 
@@ -521,14 +522,14 @@ async def get_script(show_id: str = "seneca-show-aktuell"):
 @app.post("/api/script-save")
 async def save_script(request: Request):
     body = await request.json()
-    show_id = body.get("show_id", "seneca-show-aktuell")
+    show_id = body.get("show_id", "seneca-show-analyse-kompakt")
     segments = body.get("segments", [])
     first_sentence_plain = body.get("first_sentence_plain", "")
     article_text = body.get("article_text", "")
 
     base = dict(
         SESSION_STATE.get("teleprompter_scripts", {}).get(
-            show_id, DEFAULT_TELEPROMPTER_SCRIPTS["seneca-show-aktuell"]
+            show_id, DEFAULT_TELEPROMPTER_SCRIPTS["seneca-show-analyse-kompakt"]
         )
     )
     if segments:
@@ -555,7 +556,7 @@ async def save_script(request: Request):
 @app.post("/api/script-prep")
 async def script_prep(request: Request):
     body = await request.json()
-    show_id = body.get("show_id", "seneca-show-aktuell")
+    show_id = body.get("show_id", "seneca-show-analyse-kompakt")
     article_text = body.get("article_text", "")
 
     show_md = read_local_skill_md(show_id)
@@ -602,7 +603,7 @@ async def script_prep(request: Request):
 @app.post("/api/preflight/visual")
 async def preflight_visual(request: Request):
     body = await request.json()
-    show_id = body.get("show_id", "seneca-show-aktuell")
+    show_id = body.get("show_id", "seneca-show-analyse-kompakt")
     turn = int(body.get("turn", 1))
     custom_frame_b64 = body.get("custom_frame_b64")
     ignored_check_ids: List[str] = body.get("ignored_check_ids", [])
@@ -612,8 +613,8 @@ async def preflight_visual(request: Request):
     if turn == 1:
         SESSION_STATE["visual_turn_history"] = []
 
-    show_md = read_local_skill_md(show_id)
-    cap_md = read_local_skill_md("seneca-check-studio-visuals")
+    show_md = body.get("show_skill_md") or read_local_skill_md(show_id)
+    cap_md = body.get("cap_skill_md") or read_local_skill_md("seneca-check-studio-visuals")
 
     media_parts: List[Dict[str, Any]] = []
     is_live_webcam = bool(custom_frame_b64)
@@ -653,41 +654,47 @@ async def preflight_visual(request: Request):
             + str(turn - 1)
             + "`), das zweite Bild ist die aktuelle Iteration (`v"
             + str(turn)
-            + "`). Vergleiche beide Bilder, bewerte den aktuellen Stand im zweiten Bild und beschreibe im Feld `delta_note` konkret, was der Sprecher zwischen den beiden Aufnahmen verändert/verbessert hat."
+            + "`). Vergleiche beide Bilder, bewerte den aktuellen Stand im zweiten Bild ehrlich und beschreibe im Feld `delta_note` konkret, was sich zwischen den beiden Aufnahmen verändert hat."
         )
 
     mode_note = (
-        "WICHTIG — ECHTES LIVE-WEBCAM-BILD DES NUTZERS:\n"
-        "Sei sehr wohlwollend, pragmatisch und alltagstauglich! Normale Laptop- oder USB-Webcams im Büro oder Home-Office sind der Standard.\n"
-        "- Vergib für `framing` (Bildausschnitt), `lighting` (Beleuchtung) und `background` (Hintergrund) standardmässig `PASS`, solange ein Mensch erkennbar vor der Kamera sitzt!\n"
-        "- Normales Zimmerlicht, Bildschirmlicht, Fenster im Raum, Brillenreflexionen, ein normaler Schreibtisch/Wohnraum oder leicht aussermittiges Sitzen sind völlig in Ordnung (`PASS`).\n"
-        "- Vergib NUR dann `WARN` oder `FAIL`, wenn (a) kein Gesicht im Bild ist oder der Kopf halb abgeschnitten ist, (b) das Bild fast komplett dunkel/schwarz ist, oder (c) ein in einer Zusatzregel explizit genannter Gegenstand (z.B. eine Kaffeetasse oder Kopfhörer) klar sichtbar ins Bild gehalten wird."
+        "WICHTIG — EHRLICHE, GENAU HINSEHENDE PRÜFUNG DES LIVE-WEBCAM-BILDS (KEIN PAUSCHALES DURCHWINKEN!):\n"
+        "Prüfe das aktuelle Kamerabild genau, ehrlich und kritisch anhand JEDER einzelnen Regel im `SKILL.md` — winke Abweichungen NICHT pauschal mit `PASS` durch!\n"
+        "1. **Blickkontakt (`eye_contact`)**: Prüfe genau die Augenstellung (Pupillen/Iris) und Kopfausrichtung der Person! "
+        "Vergib NUR dann `PASS`, wenn die Person frontal und direkt in die Kameralinse blickt. "
+        "Wenn die Person zur Seite (links/rechts), nach unten (auf Bildschirm, Tastatur oder Notizen), nach oben oder merklich am Objektiv vorbei schaut, den Kopf wegdreht oder die Augen geschlossen hat, MUSST du zwingend `FAIL` (oder bei leichter Abweichung `WARN`) vergeben und im Feld `measured` sowie `correction` konkret benennen, wohin die Person stattdessen schaut!\n"
+        "2. **Bildausschnitt (`framing`)**: Prüfe ehrlich, ob Kopf und obere Schultern gut mittig im Bild (auch für den mittleren 9:16-Hochformat-Ausschnitt) sitzen und oben 5–25% Kopfraum frei ist. "
+        "Wenn die Person deutlich aussermittig (nach links oder rechts verschoben) sitzt, am oberen Rand anstösst/abgeschnitten ist, viel zu nah oder zu weit weg sitzt oder kein Gesicht sichtbar ist, vergib `WARN` oder `FAIL`.\n"
+        "3. **Beleuchtung (`lighting`)**: Prüfe ehrlich, ob das Gesicht gut, klar und gleichmässig ausgeleuchtet ist. "
+        "Wenn das Gesicht zu dunkel/unterbelichtet ist, eine Gesichtshälfte im starken Schatten liegt oder ein helles Fenster/Licht im Hintergrund blendet (Gegenlicht), vergib `WARN` oder `FAIL`.\n"
+        "4. **Hintergrund (`background`) & Zusatzregeln**: Eine künstliche TV-Studiokulisse ist nicht nötig (ein aufgeräumtes Büro oder Home-Office ist `PASS`). "
+        "Prüfe das echte Bild aber genau auf Unordnung sowie auf ALLE im `SKILL.md` genannten Zusatzregeln (z.B. Keine Kaffeetasse/Becher/Gläser/Flaschen, Kein Kopfhörer/Headset/AirPods, offene Türen etc.): Sobald ein solcher Gegenstand oder Unordnung im Bild sichtbar ist, MUSST du `FAIL` oder `WARN` vergeben und den sichtbaren Gegenstand konkret benennen!"
         if is_live_webcam
         else (
             "Hinweis zu den Studio-Simulationsbildern: In Iteration 1 (`frame_v1.jpg`) sitzt der Sprecher etwas zu nah am oberen Bildrand, rechts blendet ein Fenster, und links steht eine rote Kaffeetasse ('Kaffee'). "
-            "In Iteration 2 (`frame_v2.jpg`) ist der Sprecher zurückgerückt (optimaler Kopfraum), die Jalousie ist geschlossen und die Kaffeetasse entfernt — daher MÜSSEN in Iteration 2 alle Prüfpunkte (`framing`, `lighting`, `background` und eventuelle Kaffeetassen-/Kopfhörer-Regeln) den Status `PASS` erhalten!"
+            "In Iteration 2 (`frame_v2.jpg`) ist der Sprecher zurückgerückt (optimaler Kopfraum), die Jalousie ist geschlossen und die Kaffeetasse entfernt — daher MÜSSEN in Iteration 2 alle Prüfpunkte (`framing`, `eye_contact`, `lighting`, `background` und eventuelle Kaffeetassen-/Kopfhörer-Regeln) den Status `PASS` erhalten!"
         )
     )
 
     sys_inst = (
         "Du bist der Seneca Studio Pre-Flight Vision-Agent (Schritt 2A).\n"
-        "WICHTIG: Lies die visuellen Prüfregeln (Bildausschnitt, Beleuchtung, Hintergrund sowie eventuelle Zusatzregeln wie Keine Kaffeetasse, Kein Kopfhörer, Blickkontakt etc., jedoch NICHT Mikrofon/Sprechtempo) "
-        "aus Abschnitt `## 2. Kamera & Ton (Vorprüfung)` (bzw. `## 2. Studio Pre-Flight Check`) des aktiven Format-Regelwerks (`SKILL.md`).\n"
+        "WICHTIG: Lies ALLE visuellen Prüfregeln (Bildausschnitt, Blickkontakt, Beleuchtung, Hintergrund sowie sämtliche Zusatzregeln wie Keine Kaffeetasse, Kein Kopfhörer etc., jedoch NICHT Mikrofon/Sprechtempo) "
+        "aus Abschnitt `## 2. Kamera & Ton (Vorprüfung)` des aktiven Format-Regelwerks (`SKILL.md`) sowie aus `seneca-check-studio-visuals/SKILL.md`.\n"
         "Die Regeln im `SKILL.md` sind in einfacher, natürlicher Sprache ohne technische Variablennamen formuliert. "
-        "Ordne die drei Grundregeln den IDs `framing` (Bildausschnitt), `lighting` (Beleuchtung) und `background` (Hintergrund) zu, und vergib für jede weitere visuelle Regel im `SKILL.md` eine sprechende kurze ID (z.B. `coffee_mug`, `no_headset`, `eye_contact`).\n"
-        "Jede visuelle Regel im Show Playbook MUSS als eigenes Objekt im Array `checks` zurückgegeben werden!\n\n"
+        "Ordne die vier Grundregeln den IDs `framing` (Bildausschnitt), `eye_contact` (Blickkontakt), `lighting` (Beleuchtung) und `background` (Hintergrund) zu, und vergib für jede weitere visuelle Regel im `SKILL.md` eine sprechende kurze ID (z.B. `coffee_mug`, `no_headset`).\n"
+        "Jede visuelle Regel MUSS als eigenes Objekt im Array `checks` zurückgegeben und ehrlich anhand des echten Kamerabilds bewertet werden!\n\n"
         f"=== FORMAT-REGELWERK ({show_id}/SKILL.md) ===\n{show_md}\n\n"
         f"=== MODUL-BESCHREIBUNG (seneca-check-studio-visuals/SKILL.md) ===\n{cap_md}\n"
     )
     prompt = (
-        f"Analysiere das aktuelle Kamerabild (Messung #{turn}) anhand der visuellen Regeln in `{show_id}/SKILL.md`.\n"
+        f"Analysiere das aktuelle Kamerabild (Messung #{turn}) ehrlich und genau anhand der visuellen Regeln in `{show_id}/SKILL.md`.\n"
         f"{mode_note}"
         f"{prev_context}\n\n"
         "Gib exakt folgendes JSON-Format zurück:\n"
         "{\n"
         f'  "turn": {turn},\n'
         '  "overall_visual_status": "PASS" | "WARN" | "FAIL",\n'
-        '  "studio_banner_de": "Kurze, freundliche 1-Satz-Rückmeldung für den Sprecher (oder Freigabe für Schritt 2B Tonprüfung)",\n'
+        '  "studio_banner_de": "Kurze, konkrete 1-Satz-Rückmeldung für den Sprecher (was korrigiert werden sollte oder Freigabe für Schritt 2B Tonprüfung)",\n'
         '  "delta_note": "Konkreter Vergleich zum vorherigen Bild (leer bei Messung 1)",\n'
         '  "checks": [\n'
         '    {\n'
@@ -696,7 +703,15 @@ async def preflight_visual(request: Request):
         '      "status": "PASS" | "WARN" | "FAIL",\n'
         '      "rule_from_skill": "Kurzfassung der Regel aus SKILL.md",\n'
         '      "measured": "Was konkret im Kamerabild sichtbar ist",\n'
-        '      "correction": "Kurze Bestätigung oder freundlicher Hinweis"\n'
+        '      "correction": "Kurze Bestätigung oder konkreter Korrekturhinweis"\n'
+        "    },\n"
+        '    {\n'
+        '      "id": "eye_contact",\n'
+        '      "label": "Blickkontakt",\n'
+        '      "status": "PASS" | "WARN" | "FAIL",\n'
+        '      "rule_from_skill": "Direkter Blick frontal in die Kameralinse",\n'
+        '      "measured": "Wohin die Person im Bild konkret blickt",\n'
+        '      "correction": "Bestätigung oder Hinweis, direkt in die Kameralinse zu schauen"\n'
         "    }\n"
         "  ]\n"
         "}"
@@ -706,6 +721,7 @@ async def preflight_visual(request: Request):
         prompt=prompt,
         system_instruction=sys_inst,
         media_parts=media_parts,
+        thinking_budget=512,
     )
     # On simulation Turn >= 2 (frame_v2.jpg), guarantee clean PASS across all checks
     if not is_live_webcam and turn >= 2:
@@ -717,6 +733,15 @@ async def preflight_visual(request: Request):
         if not res.get("delta_note"):
             res["delta_note"] = "Abstand, Beleuchtung und Hintergrund erfolgreich korrigiert"
         res["studio_banner_de"] = "Kamerabild und Umgebung sind optimal eingestellt. Weiter mit Schritt 2B: Tonprüfung!"
+    else:
+        # Ensure overall_visual_status reflects any WARN or FAIL in checks
+        raw_statuses = [(c.get("status") or "WARN").upper() for c in res.get("checks", [])]
+        if "FAIL" in raw_statuses:
+            res["overall_visual_status"] = "FAIL"
+        elif "WARN" in raw_statuses:
+            res["overall_visual_status"] = "WARN"
+        else:
+            res["overall_visual_status"] = "PASS"
 
     res = apply_check_overrides(res, ignored_check_ids, "overall_visual_status", "visual")
     if voice_enabled and res.get("studio_banner_de"):
@@ -733,7 +758,7 @@ async def preflight_visual(request: Request):
 @app.post("/api/preflight/audio")
 async def preflight_audio(request: Request):
     body = await request.json()
-    show_id = body.get("show_id", "seneca-show-aktuell")
+    show_id = body.get("show_id", "seneca-show-analyse-kompakt")
     turn = int(body.get("turn", 1))
     word_count = int(body.get("word_count", 11))
     custom_audio_b64 = body.get("custom_audio_b64")
@@ -796,21 +821,28 @@ async def preflight_audio(request: Request):
             "Vergleiche diesen neuen Versuch explizit mit dem vorherigen Versuch im Feld `delta_note`!"
         )
 
-    show_md = read_local_skill_md(show_id)
-    cap_md = read_local_skill_md("seneca-check-audio-pace")
+    show_md = body.get("show_skill_md") or read_local_skill_md(show_id)
+    cap_md = body.get("cap_skill_md") or read_local_skill_md("seneca-check-audio-pace")
+
+    import re as _re
+    wpm_match = _re.search(r"zwischen\s+(\d+)\s+und\s+(\d+)\s+Wörtern pro Minute", show_md)
+    if wpm_match:
+        min_wpm, max_wpm = int(wpm_match.group(1)), int(wpm_match.group(2))
+    else:
+        min_wpm, max_wpm = (115, 165) if "finanz" in show_id else (105, 155)
 
     sys_inst = (
         "Du bist der Seneca Studio Audio- & Sprechtempo-Agent (Schritt 2B).\n"
         "Du erhältst die Messwerte aus der Audioanalyse sowie die eingesprochene Aufnahme und prüfst Mikrofon-Lautstärke und Sprechtempo "
-        "anhand der einfachen Regeln im aktiven Format-Regelwerk (`SKILL.md`).\n"
-        "WICHTIG: Höre dir die Audiodatei an, transkribiere, was gesprochen wurde (`heard_transcript`), "
-        "und bewerte wohlwollend und alltagstauglich: Ein Sprechtempo zwischen 95 und 165 WPM sowie ein Mikrofonpegel zwischen -30 und -10 LUFS sind komplett im grünen Bereich (`PASS`)!\n\n"
+        "ehrlich anhand der Regeln im aktiven Format-Regelwerk (`SKILL.md`).\n"
+        "WICHTIG: Höre dir die Audiodatei genau an und transkribiere im Feld `heard_transcript` Wort für Wort, was tatsächlich gesprochen wurde "
+        "(wenn Stille oder nur Rauschen zu hören ist, gib einen leeren String `\"\"` zurück — erfinde niemals den Satz, wenn er nicht gesprochen wurde!).\n\n"
         f"=== FORMAT-REGELWERK ({show_id}/SKILL.md) ===\n{show_md}\n\n"
         f"=== MODUL-BESCHREIBUNG (seneca-check-audio-pace/SKILL.md) ===\n{cap_md}\n"
     )
     prompt = (
-        f"Bewerte diese Mikrofon- und Sprechtempo-Aufnahme (Messung #{turn}).\n"
-        f"Vorgelesener Satz ({word_count} Wörter): \"{first_sentence}\"\n"
+        f"Bewerte diese Mikrofon- und Sprechtempo-Aufnahme (Messung #{turn}) ehrlich.\n"
+        f"Vorgelesener Ziel-Satz ({word_count} Wörter): \"{first_sentence}\"\n"
         f"Gemessene Audio-Kennzahlen: {json.dumps(telemetry)}"
         f"{prev_audio_ctx}\n\n"
         "Gib exakt folgendes JSON-Format zurück:\n"
@@ -818,7 +850,7 @@ async def preflight_audio(request: Request):
         f'  "turn": {turn},\n'
         '  "overall_audio_status": "PASS" | "WARN" | "FAIL",\n'
         '  "ready_to_record": true | false,\n'
-        '  "heard_transcript": "Exakt was im Audio gesprochen wurde",\n'
+        '  "heard_transcript": "Exakt was im Audio gesprochen wurde (leer bei Stille)",\n'
         '  "spoken_word_count": 11,\n'
         '  "delta_note": "Kurzer Vergleich zur vorherigen Messung (z.B. Pegel und Tempo jetzt im Zielbereich)",\n'
         '  "studio_banner_de": "Kurze Regie-Rückmeldung für den Sprecher",\n'
@@ -835,7 +867,7 @@ async def preflight_audio(request: Request):
         '      "id": "speaking_pace",\n'
         '      "label": "Sprechtempo",\n'
         '      "status": "PASS" | "WARN" | "FAIL",\n'
-        '      "rule_from_skill": "Ruhiger, natürlicher Nachrichtenfluss (100 bis 160 WPM)",\n'
+        f'      "rule_from_skill": "Ruhiger, natürlicher Nachrichtenfluss ({min_wpm} bis {max_wpm} WPM)",\n'
         '      "measured": "z.B. 137 WPM (11 Wörter in 4.1s)",\n'
         '      "correction": "Bestätigung oder kurzer Hinweis"\n'
         "    }\n"
@@ -857,6 +889,10 @@ async def preflight_audio(request: Request):
         real_wpm = round(((actual_words * 0.85) / max(speech_dur, 1.4)) * 60.0)
         telemetry["wpm"] = real_wpm
         telemetry["spoken_words"] = actual_words
+    elif is_live_mic:
+        real_wpm = 0 if actual_words == 0 else round(((actual_words * 0.85) / max(speech_dur, 1.4)) * 60.0)
+        telemetry["wpm"] = real_wpm
+        telemetry["spoken_words"] = actual_words
     else:
         real_wpm = int(telemetry.get("wpm") or 135)
         telemetry["spoken_words"] = actual_words if actual_words > 0 else word_count
@@ -864,6 +900,7 @@ async def preflight_audio(request: Request):
     lufs_val = float(telemetry.get("lufs") or -18.0)
     peak_val = float(telemetry.get("peak_db") or -6.0)
     spoken_cnt = telemetry["spoken_words"]
+    min_expected_words = max(5, int(word_count * 0.6))
 
     for c in res.get("checks", []):
         cid = c.get("id")
@@ -872,12 +909,15 @@ async def preflight_audio(request: Request):
             c["rule_from_skill"] = "Klar verständliche Stimme ohne Übersteuern (ca. -26 bis -12 LUFS)"
             c["measured"] = f"{lufs_val:.1f} LUFS (Spitze {peak_val:.1f} dBFS)"
             if is_live_mic:
-                if spoken_cnt < 2 or lufs_val < -36.0:
+                if spoken_cnt == 0 or lufs_val < -32.0:
+                    c["status"] = "FAIL"
+                    c["correction"] = "Kein ausreichender Sprachpegel erkannt. Bitte sprechen Sie klar ins Mikrofon."
+                elif lufs_val < -28.0:
                     c["status"] = "WARN"
-                    c["correction"] = "Mikrofonpegel war sehr leise. Bitte sprechen Sie etwas näher am Mikrofon."
-                elif peak_val > -0.2 and lufs_val > -9.0:
-                    c["status"] = "WARN"
-                    c["correction"] = "Mikrofonpegel ist sehr hoch. Bitte etwas mehr Abstand zum Mikrofon halten."
+                    c["correction"] = f"Mikrofonpegel ({lufs_val:.1f} LUFS) ist recht leise. Bitte sprechen Sie etwas näher am Mikrofon."
+                elif peak_val > -0.3 and lufs_val > -10.0:
+                    c["status"] = "FAIL"
+                    c["correction"] = f"Mikrofon übersteuert ({lufs_val:.1f} LUFS, Spitze {peak_val:.1f} dBFS). Bitte etwas mehr Abstand halten."
                 else:
                     c["status"] = "PASS"
                     c["correction"] = "Mikrofon-Lautstärke ist klar verständlich und sauber ausgesteuert."
@@ -890,29 +930,37 @@ async def preflight_audio(request: Request):
                     c["correction"] = f"Mikrofon übersteuert bei {lufs_val:.1f} LUFS (Spitze {peak_val:.1f} dBFS). Bitte Pegel senken oder Abstand vergrössern."
         elif cid == "speaking_pace":
             c["label"] = "Sprechtempo"
-            c["rule_from_skill"] = "Ruhiger, natürlicher Nachrichtenfluss (ca. 100 bis 160 Wörter/Min.)"
+            c["rule_from_skill"] = f"Ruhiger, natürlicher Nachrichtenfluss ({min_wpm} bis {max_wpm} Wörter/Min.)"
             c["measured"] = f"{real_wpm} WPM ({spoken_cnt} Wörter in {speech_dur:.1f}s Sprechzeit)"
-            if is_live_mic and spoken_cnt < 2:
+            if is_live_mic and spoken_cnt == 0:
+                c["status"] = "FAIL"
+                c["correction"] = "Es wurde keine Sprache erkannt. Bitte lesen Sie den eingeblendeten Satz laut vor."
+            elif is_live_mic and spoken_cnt < min_expected_words:
                 c["status"] = "WARN"
-                c["correction"] = "Es wurden noch zu wenige Wörter erkannt. Bitte lesen Sie den ganzen Satz vor."
-            elif 95 <= real_wpm <= 165:
+                c["correction"] = f"Es wurden nur {spoken_cnt} von {word_count} Wörtern erkannt. Bitte lesen Sie den ganzen Satz vollständig vor."
+            elif min_wpm <= real_wpm <= max_wpm:
                 c["status"] = "PASS"
-                c["correction"] = f"Angenehmes, natürliches Sprechtempo ({real_wpm} WPM) — optimal für die Sendung."
-            elif real_wpm > 165:
-                c["status"] = "WARN" if real_wpm <= 185 else "FAIL"
-                c["correction"] = f"Sprechtempo ({real_wpm} WPM) ist etwas zu hoch. Bitte lesen Sie den Satz eine Spur ruhiger."
+                c["correction"] = f"Angenehmes, natürliches Sprechtempo ({real_wpm} WPM) — genau im Zielkorridor ({min_wpm}–{max_wpm} WPM)."
+            elif real_wpm > max_wpm:
+                c["status"] = "WARN" if real_wpm <= max_wpm + 25 else "FAIL"
+                c["correction"] = f"Sprechtempo ({real_wpm} WPM) liegt über dem Zielbereich ({min_wpm}–{max_wpm} WPM). Bitte lesen Sie den Satz etwas ruhiger."
             else:
-                c["status"] = "WARN"
-                c["correction"] = f"Sprechtempo ({real_wpm} WPM) ist sehr langsam. Bitte etwas flüssiger vorlesen."
+                c["status"] = "WARN" if real_wpm >= min_wpm - 25 else "FAIL"
+                c["correction"] = f"Sprechtempo ({real_wpm} WPM) liegt unter dem Zielbereich ({min_wpm}–{max_wpm} WPM). Bitte etwas flüssiger vorlesen."
 
     # Recompute overall_audio_status and banner deterministically from the calibrated checks
     statuses = [c.get("status", "PASS") for c in res.get("checks", [])]
+    open_msgs = [c.get("correction", "") for c in res.get("checks", []) if c.get("status") in ("WARN", "FAIL") and c.get("correction")]
     if "FAIL" in statuses:
         res["overall_audio_status"] = "FAIL"
         res["ready_to_record"] = False
+        if open_msgs:
+            res["studio_banner_de"] = " ".join(open_msgs)
     elif "WARN" in statuses:
         res["overall_audio_status"] = "WARN"
         res["ready_to_record"] = False
+        if open_msgs:
+            res["studio_banner_de"] = " ".join(open_msgs)
     else:
         res["overall_audio_status"] = "PASS"
         res["ready_to_record"] = True
@@ -949,7 +997,7 @@ async def preflight_audio(request: Request):
 @app.post("/api/postprod")
 async def run_postprod(request: Request):
     body = await request.json()
-    show_id = body.get("show_id", "seneca-show-aktuell")
+    show_id = body.get("show_id", "seneca-show-analyse-kompakt")
     custom_video_b64 = body.get("custom_video_b64")
 
     show_md = read_local_skill_md(show_id)
@@ -1086,11 +1134,11 @@ async def run_postprod(request: Request):
 
 @app.post("/api/managed-agent/interact")
 async def managed_agent_interact(request: Request):
-    """Calls the live Managed Agents Interactions API (`seneca-studio-agent`) on YOUR_GCP_PROJECT_ID."""
+    """Calls the live Managed Agents Interactions API (`seneca-seneca-studio-agent`) on your-gcp-project-id."""
     body = await request.json()
     user_prompt = body.get(
         "prompt",
-        "List the Seneca skills mounted in your sandbox under .agent/skills, read seneca-show-aktuell/SKILL.md, and return a short JSON summary of the pre-flight check rules.",
+        "List the Seneca skills mounted in your sandbox under .agent/skills, read seneca-show-analyse-kompakt/SKILL.md, and return a short JSON summary of the pre-flight check rules.",
     )
     token = get_gcp_token()
     url = f"https://aiplatform.googleapis.com/v1beta1/projects/{PROJECT_ID}/locations/global/interactions"
@@ -1151,6 +1199,9 @@ async def managed_agent_interact(request: Request):
                                 SESSION_STATE["environment_id"] = inter["environment_id"]
                             if inter.get("id"):
                                 SESSION_STATE["previous_interaction_id"] = inter["id"]
+                            break
+                        elif ev_type in ("interaction.failed", "error"):
+                            break
                     except Exception:
                         pass
     except urllib.error.HTTPError as e:
