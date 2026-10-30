@@ -1,13 +1,12 @@
 ---
 name: seneca-auto-cut-master
-description: Uses Gemini Multimodal to identify retakes and long pauses into edl.json, then runs scripts/render_cuts.py (FFmpeg) for zero-token video cutting and 16:9 / 9:16 mastering.
+description: Schneidet Versprecher und lange Pausen automatisch heraus und erstellt das fertige 16:9- und 9:16-Video.
 ---
 
-# Capability Skill: Smart Cut EDL & Deterministic Mastering
+# Modul: Automatischer Rohschnitt & Ton-Mastering (Schritt 03)
 
-1. Analyze the raw recording (`raw_take.mp4`) using Gemini Multimodal to identify:
-   - **Retakes / Stumbles**: Spoken false starts or repeated sentences (mark `action: "REMOVE"`, `reason: "Retake / Versprecher"`).
-   - **Long Pauses**: Dead air exceeding the show's threshold (mark `action: "REMOVE"`, `reason: "Sprechpause > 0.8s"`).
-   - **Clean Segments**: Segments to keep (`action: "KEEP"`).
-2. Save the resulting timestamp array to `edl.json`.
-3. Execute `python3 scripts/render_cuts.py raw_take.mp4 edl.json --out-dir <dir>` to deterministically splice the keep-segments, normalize audio to -16 LUFS, and render both `master_16x9.mp4` and `reel_9x16.mp4`.
+Dieses Modul übernimmt nach der Studio-Aufnahme den automatischen Rohschnitt:
+
+1. **Versprecher & Neustarts erkennen**: Wenn der Sprecher während der Aufnahme einen Satz korrigiert oder neu ansetzt, wird der verworfene Ansatz automatisch entfernt.
+2. **Sprechpausen glätten**: Unnötig lange Pausen am Anfang, in der Mitte oder am Ende der Aufnahme werden auf ein natürliches Mass gekürzt.
+3. **Zwei fertige Ausgabeformate**: Aus den sauberen Passagen entstehen ohne Qualitätsverlust das 16:9-Hauptvideo und das 9:16-Hochformat, beide mit gleichmässiger Sendelautstärke (-16 LUFS).

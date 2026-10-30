@@ -1,15 +1,12 @@
 ---
 name: seneca-check-studio-visuals
-description: Evaluates a studio snapshot frame (frame_vN.jpg) against the visual rules in the active Show Playbook skill.
+description: Prüft das Kamerabild wohlwollend und alltagstauglich anhand der Regeln der gewählten Sendung.
 ---
 
-# Capability Skill: Studio Visuals & Framing QA (Loop A)
+# Modul: Kamerabild & Umgebung prüfen (Schritt 2A)
 
-1. Read every visual check bullet under `## 2. Studio Pre-Flight Check` of the active Show Playbook (`SKILL.md`).
-2. Inspect the current camera snapshot (`frame_vN.jpg`). If a previous snapshot (`frame_vN-1.jpg`) or previous check result is provided in context, explicitly note the improvement delta (e.g., "Abstand verbessert (+15 cm)").
-3. Return a JSON object with `overall_visual_status` (`PASS` | `WARN` | `FAIL`) and a `checks` array where each item has:
-   - `id`: rule identifier (e.g., `framing`, `lighting`, `background`, plus any custom rule added to the Show Playbook)
-   - `label`: short German badge title
-   - `status`: `PASS`, `WARN`, or `FAIL`
-   - `measured`: concise observation (e.g., "Augenlinie bei 31%, Kopfraum 12%")
-   - `correction`: actionable 1-sentence German instruction for the presenter sitting 2m from the camera.
+Dieses Modul vergleicht das aktuelle Kamerabild mit den Vorgaben im Abschnitt «Kamera & Ton (Vorprüfung)» der gewählten Sendung:
+
+1. **Pragmatische Bewertung**: Ein normaler Arbeitsplatz, ein gewöhnliches Home-Office, normales Raum- oder Tageslicht sowie eine normale Brille sind völlig in Ordnung und werden freigegeben.
+2. **Gezielte Hinweise**: Nur wenn das Gesicht deutlich abgeschnitten ist, starkes Gegenlicht das Gesicht verdunkelt oder ein gemäss Sendungsregel unerwünschter Gegenstand (zum Beispiel eine Kaffeetasse oder ein Kopfhörer) im Bild zu sehen ist, gibt die Regie einen kurzen, freundlichen Hinweis.
+3. **Fortschritt erkennen**: Beim zweiten Durchgang vergleicht das Modul das neue Bild mit der vorherigen Aufnahme und bestätigt sofort jede Verbesserung.

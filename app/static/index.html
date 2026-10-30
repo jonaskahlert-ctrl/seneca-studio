@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Seneca Studio — Redaktionelles Videostudio mit integriertem Teleprompter, Skill-gesteuerter Kamera- und Tonprüfung sowie automatischem Rohschnitt." />
-  <title>Seneca Studio — Editorial Video Studio</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Seneca Studio — AI Editorial Video Studio</title>
+  <script src="/static/tailwind.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
     :root {
       --bg-paper: #F6F5F0;
@@ -90,30 +90,30 @@
     <div class="max-w-[1540px] mx-auto px-6 h-14 flex items-center justify-between gap-4">
 
       <!-- Left: Seneca Masthead + Format Selector -->
-      <div class="flex items-center gap-6">
-        <div class="flex items-baseline gap-3">
-          <h1 class="font-editorial text-2xl font-medium tracking-tight text-stone-950">Seneca Studio</h1>
+      <div class="flex items-center gap-5 min-w-0">
+        <div class="flex items-baseline gap-3 shrink-0 whitespace-nowrap">
+          <h1 class="font-editorial text-2xl font-medium tracking-tight text-stone-950 whitespace-nowrap">Seneca Studio</h1>
           <span class="text-stone-300">|</span>
-          <span class="text-xs font-medium uppercase tracking-[0.12em] text-stone-600">Seneca Studio</span>
+          <span class="text-xs font-medium uppercase tracking-[0.12em] text-stone-600 whitespace-nowrap">Seneca Studio</span>
         </div>
 
-        <div class="h-4 w-px bg-stone-200 hidden sm:block"></div>
+        <div class="h-4 w-px bg-stone-200 hidden sm:block shrink-0"></div>
 
         <!-- Show Playbook Dropdown -->
-        <div class="flex items-center gap-2">
-          <label for="showSelect" class="text-[11px] uppercase tracking-[0.08em] text-stone-500 font-medium">Sendungsformat</label>
+        <div class="flex items-center gap-2 shrink-0">
+          <label for="showSelect" class="text-[11px] uppercase tracking-[0.08em] text-stone-500 font-medium whitespace-nowrap">Sendungsformat</label>
           <select id="showSelect" onchange="onShowChange()" class="bg-[#F6F5F0] border hairline-border px-2.5 py-1 text-xs font-medium text-stone-900 focus:outline-none focus:border-stone-900 cursor-pointer">
-            <option value="seneca-show-aktuell">Studio Analyse (16:9 Analyse + 9:16 Kurzformat)</option>
-            <option value="seneca-seneca-show-finanz-kompakt">Finanz Kompakt (9:16 Vertikal)</option>
+            <option value="seneca-show-aktuell">Format Aktuell (16:9 Analyse + 9:16 Kurzformat)</option>
+            <option value="seneca-show-finanz-kompakt">Finanz Kompakt (9:16 Vertikal)</option>
           </select>
         </div>
       </div>
 
       <!-- Right: Voice Coach + Prominent Skills & Format Rules Trigger -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5 shrink-0">
 
         <!-- Chirp 3 HD Regie-Stimme -->
-        <div class="flex items-center border hairline-border bg-white px-2.5 py-1 gap-2 text-xs">
+        <div class="flex items-center border hairline-border bg-white px-2.5 py-1 gap-2 text-xs whitespace-nowrap">
           <span class="text-[11px] uppercase tracking-[0.06em] text-stone-500">Regie-Stimme</span>
           <select id="voiceSelect" onchange="onVoiceSelectChange()" class="bg-transparent text-xs font-medium text-stone-900 focus:outline-none cursor-pointer">
             <option value="de-DE-Chirp3-HD-Aoede">Aoede (Chirp 3 HD)</option>
@@ -128,13 +128,13 @@
         <audio id="coachAudioPlayer" class="hidden"></audio>
 
         <!-- PROMINENT SKILLS / FORMAT-REGELN BUTTON -->
-        <button onclick="switchWorkspaceTab('skills')" class="btn-primary px-3.5 py-1.5 text-xs font-medium flex items-center gap-2">
+        <button onclick="switchWorkspaceTab('skills')" class="btn-primary px-3 py-1.5 text-xs font-medium flex items-center gap-2 whitespace-nowrap shrink-0">
           <span>Format-Regeln &amp; Skills (<code class="font-mono-tabular">SKILL.md</code>)</span>
           <span class="px-1.5 py-0.2 bg-white/20 font-mono-tabular text-[11px]" id="skillCountBadge">6</span>
         </button>
 
         <!-- Sandbox Log Trigger -->
-        <button onclick="toggleSandboxModal(true)" class="btn-secondary px-2.5 py-1.5 text-xs font-mono-tabular text-stone-600" title="Agent-Protokoll & Sandbox">
+        <button onclick="toggleSandboxModal(true)" class="btn-secondary px-2.5 py-1.5 text-xs font-mono-tabular text-stone-600 whitespace-nowrap shrink-0" title="Agent-Protokoll & Sandbox">
           Protokoll
         </button>
       </div>
@@ -195,8 +195,8 @@
             <span class="text-[10px] font-mono-tabular uppercase tracking-widest text-white/60">16:9 HD</span>
           </div>
           <!-- 9:16 Center Crop Marks -->
-          <div class="absolute top-4 bottom-4 left-[34.3%] right-[34.3%] border-x border-white/20">
-            <span class="absolute bottom-1 left-2 text-[9px] font-mono-tabular uppercase tracking-widest text-white/50">9:16 Ausschnitt</span>
+          <div class="absolute top-4 bottom-10 left-[34.3%] right-[34.3%] border-x border-white/20">
+            <span class="absolute bottom-1.5 left-2 text-[9px] font-mono-tabular uppercase tracking-widest text-white/50">9:16 Ausschnitt</span>
           </div>
         </div>
 
@@ -204,14 +204,19 @@
         <!-- TEMPORARY SENTENCE-1 BANNER FOR STEP 02B AUDIO TEST             -->
         <!-- (Never overwrites the full 5-section Teleprompter script!)      -->
         <!-- =============================================================== -->
-        <div id="audioTestPromptOverlay" class="hidden absolute inset-x-8 top-6 bg-black/88 backdrop-blur-md border border-white/25 p-5 shadow-2xl">
-          <div class="flex items-center justify-between border-b border-white/15 pb-2 mb-2.5">
-            <span class="text-[11px] font-mono-tabular uppercase tracking-[0.1em] text-amber-300 font-medium">
-              2B TON- &amp; SPRECHTEMPOTEST — BITTE DIESEN ERSTEN SATZ LAUT VORLESEN
+        <div id="audioTestPromptOverlay" class="hidden absolute inset-x-8 top-6 bg-black/90 backdrop-blur-md border border-white/25 p-5 shadow-2xl z-30">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/15 pb-2.5 mb-3">
+            <span id="audioPromptStepHint" class="text-[11px] font-mono-tabular uppercase tracking-[0.1em] text-amber-300 font-medium">
+              2B TON- &amp; SPRECHTEMPOTEST — BITTE DIESEN SATZ IN RUHE VORLESEN
             </span>
-            <span id="audioRecCountdownBadge" class="text-xs font-mono-tabular px-2 py-0.5 bg-[#C81E1E] text-white font-medium">
-              Aufnahme läuft…
-            </span>
+            <div class="flex items-center gap-2">
+              <span id="audioRecCountdownBadge" class="text-xs font-mono-tabular px-2.5 py-0.5 bg-[#B45309] text-white font-semibold">
+                Startet in 3…
+              </span>
+              <button id="btnStopAudioEarlyOverlay" onclick="stopAudioCheckRecordingEarly()" class="hidden px-2.5 py-0.5 bg-[#15803D] hover:bg-emerald-700 text-white text-xs font-medium transition">
+                Fertig gesprochen ✓
+              </button>
+            </div>
           </div>
           <p id="audioTestSentenceDisplay" class="font-editorial text-2xl sm:text-3xl leading-snug text-white">
             «An der Ostfront bei Pokrowsk verschiebt sich die militärische Dynamik spürbar.»
@@ -358,7 +363,7 @@
         <!-- First Sentence for Step 02B Audio Check -->
         <div class="border-t hairline-border pt-3.5 space-y-1.5">
           <div class="flex items-center justify-between text-[11px] uppercase tracking-[0.06em] text-stone-500 font-medium">
-            <span>Erster Satz (wird in Schritt 2B für den 4-Sekunden-Toncheck verwendet)</span>
+            <span>Erster Satz (wird in Schritt 2B für die kurze Tonprüfung vorgelesen)</span>
           </div>
           <blockquote id="firstSentencePreview" class="font-editorial text-sm text-stone-900 bg-[#F6F5F0] border-l-2 border-stone-900 pl-3 py-1.5">
             «An der Ostfront bei Pokrowsk verschiebt sich die militärische Dynamik spürbar.»
@@ -372,11 +377,18 @@
           </summary>
           <div class="mt-3 space-y-2.5">
             <textarea id="articleInput" rows="4" class="w-full bg-[#F6F5F0] border hairline-border p-2.5 text-xs text-stone-900 leading-relaxed focus:outline-none focus:border-stone-900"></textarea>
-            <button id="btnRunScript" onclick="runScriptPrep()" class="btn-primary px-3.5 py-1.5 text-xs font-medium w-full">
+            <button id="btnRunScript" onclick="runScriptPrep()" class="btn-secondary px-3.5 py-1.5 text-xs font-medium w-full">
               Aus Entwurf neues 5-teiliges Teleprompter-Skript erstellen
             </button>
           </div>
         </details>
+
+        <!-- Guided Next Step CTA from Step 01 -> Step 02 -->
+        <div class="border-t hairline-border pt-3.5">
+          <button onclick="switchWorkspaceTab('preflight')" class="btn-primary w-full py-2.5 px-4 text-xs font-medium flex items-center justify-center gap-2">
+            <span>Weiter zu Schritt 02: Kamera- &amp; Ton-Vorprüfung →</span>
+          </button>
+        </div>
       </div>
 
       <!-- ===================================================================== -->
@@ -385,13 +397,13 @@
       <div id="panelStepPreflight" class="p-5 space-y-4">
         <div class="flex items-baseline justify-between border-b hairline-border pb-3">
           <div>
-            <span class="text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-stone-400">Schritt 02</span>
+            <span class="text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-stone-400">Schritt 02 · In 2 kurzen Schritten zur Freigabe</span>
             <h2 class="font-editorial text-xl text-stone-950 mt-0.5">Kamera- &amp; Ton-Vorprüfung</h2>
           </div>
 
-          <div class="flex items-center gap-2 text-[11px] font-mono-tabular">
+          <div class="flex items-center gap-2 text-[11px] font-mono-tabular shrink-0">
             <span id="stepLoopABadge" class="px-2 py-0.5 bg-stone-900 text-white font-medium">2A Bild</span>
-            <span class="text-stone-300">/</span>
+            <span class="text-stone-300">→</span>
             <span id="stepLoopBBadge" class="px-2 py-0.5 bg-stone-100 text-stone-500">2B Ton</span>
           </div>
         </div>
@@ -401,19 +413,19 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span class="text-[10px] font-mono-tabular uppercase tracking-wider px-1.5 py-0.5 bg-stone-900 text-white">SKILL.md</span>
-              <span class="text-xs font-semibold text-stone-900" id="activeSkillTitleInStep2">Aktives Regelwerk: Studio Analyse</span>
+              <span class="text-xs font-semibold text-stone-900" id="activeSkillTitleInStep2">Aktives Regelwerk: Format Aktuell</span>
             </div>
-            <button onclick="switchWorkspaceTab('skills')" class="text-xs font-medium text-stone-900 underline hover:text-stone-600">
+            <button onclick="switchWorkspaceTab('skills')" class="text-xs font-medium text-stone-900 underline hover:text-stone-600 whitespace-nowrap">
               Regelwerk bearbeiten →
             </button>
           </div>
           <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
-            <span class="text-[11px] text-stone-500 mr-1">Schnell-Regel in <code class="font-mono-tabular">SKILL.md</code> ergänzen:</span>
+            <span class="text-[11px] text-stone-500 mr-1">Schnell-Regel ergänzen:</span>
             <button onclick="quickAddRuleAndSave('coffee')" class="px-2 py-0.5 bg-white border hairline-border hover:border-stone-900 text-[11px] text-stone-800 transition">
               + Keine Kaffeetasse
             </button>
             <button onclick="quickAddRuleAndSave('headset')" class="px-2 py-0.5 bg-white border hairline-border hover:border-stone-900 text-[11px] text-stone-800 transition">
-              + Kein Headset/AirPods
+              + Kein Kopfhörer
             </button>
             <button onclick="quickAddRuleAndSave('smile')" class="px-2 py-0.5 bg-white border hairline-border hover:border-stone-900 text-[11px] text-stone-800 transition">
               + Blickkontakt
@@ -421,27 +433,38 @@
           </div>
         </div>
 
-        <!-- Primary Measurement Controls -->
-        <div class="grid grid-cols-2 gap-2">
-          <button id="btnAutoPreflight" onclick="toggleHandsFreeLoop()" class="col-span-2 btn-primary py-2.5 px-4 text-xs font-medium flex items-center justify-center gap-2">
-            Auto-Prüfung starten (4-Sekunden-Intervall)
-          </button>
-          <button id="btnSingleVisual" onclick="runSingleVisualCheck()" class="btn-secondary py-2 px-3 text-xs font-medium">
-            2A · Kamerabild jetzt prüfen
-          </button>
-          <button id="btnSingleAudio" onclick="runSingleAudioCheck(true)" class="btn-secondary py-2 px-3 text-xs font-medium">
-            2B · Ersten Satz neu einsprechen (4s)
+        <!-- STEP-BY-STEP GUIDED MEASUREMENT CONTROLS (CLEAR 1 -> 2 HIERARCHY) -->
+        <div class="space-y-2">
+          <div class="grid grid-cols-2 gap-2.5">
+            <button id="btnSingleVisual" onclick="runSingleVisualCheck()" class="btn-primary py-2.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5">
+              <span>1. Kamerabild prüfen (2A)</span>
+            </button>
+            <button id="btnSingleAudio" onclick="runSingleAudioCheck(true)" class="btn-secondary py-2.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5">
+              <span>2. Ton &amp; Tempo prüfen (2B)</span>
+            </button>
+          </div>
+
+          <!-- GUIDED NEXT-STEP CALLOUT BANNER (Appears automatically when 2A or 2B is solved) -->
+          <div id="guidedNextStepBanner" class="hidden"></div>
+
+          <button id="btnAutoPreflight" onclick="toggleHandsFreeLoop()" class="w-full btn-secondary py-1.5 px-3 text-[11px] text-stone-600 hover:text-stone-950 flex items-center justify-center gap-2">
+            <span>Oder: Automatischer Durchlauf (prüft 2A &amp; 2B selbstständig alle 4 Sekunden)</span>
           </button>
         </div>
 
         <!-- AUDIO RECORDING LIVE PROGRESS + LATEST RECORDING PLAYBACK & HISTORY -->
-        <div id="audioTestStatusBox" class="hidden bg-[#FAF9F6] border hairline-border p-3 space-y-2">
-          <div class="flex items-center justify-between text-xs">
+        <div id="audioTestStatusBox" class="hidden bg-[#FAF9F6] border hairline-border p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between gap-2 text-xs">
             <span id="audioAttemptTitle" class="font-semibold text-stone-900">Tonmessung #1</span>
-            <span id="audioAttemptStats" class="font-mono-tabular text-[11px] text-stone-600"></span>
+            <div class="flex items-center gap-2">
+              <span id="audioAttemptStats" class="font-mono-tabular text-[11px] text-stone-600"></span>
+              <button id="btnStopAudioEarly" onclick="stopAudioCheckRecordingEarly()" class="hidden px-2.5 py-1 bg-[#15803D] hover:bg-emerald-700 text-white text-[11px] font-medium transition">
+                Fertig gesprochen — Jetzt auswerten ✓
+              </button>
+            </div>
           </div>
-          <!-- Progress bar while recording 4s -->
-          <div id="audioRecProgressWrap" class="hidden w-full h-1.5 bg-stone-200 overflow-hidden">
+          <!-- Progress bar while counting down / recording -->
+          <div id="audioRecProgressWrap" class="hidden w-full h-2 bg-stone-200 overflow-hidden">
             <div id="audioRecProgressBar" class="h-full bg-[#C81E1E] transition-all duration-100" style="width: 0%"></div>
           </div>
           <!-- Playable recording + transcript of latest attempt -->
@@ -454,16 +477,16 @@
 
         <!-- CHECKLIST TABLE HEADER + PROGRESS BAR + GLOBAL OVERRIDE BUTTON -->
         <div class="pt-1 border-t hairline-border space-y-2">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
               <span class="text-[11px] uppercase tracking-[0.08em] text-stone-500 font-medium">Prüfergebnis (<code class="font-mono-tabular">SKILL.md</code>)</span>
               <span id="checksProgressBadge" class="hidden px-2 py-0.5 text-[11px] font-mono-tabular font-semibold bg-stone-100 text-stone-600">0 / 0 gelöst</span>
             </div>
-            <div class="flex items-center gap-3">
-              <button id="btnOverrideAllBanner" onclick="overrideAllOpenChecks()" class="hidden text-xs font-medium text-[#B45309] hover:text-stone-950 underline">
-                Alle offenen Punkte übersteuern &amp; weiter →
+            <div class="flex items-center gap-3 shrink-0">
+              <button id="btnOverrideAllBanner" onclick="overrideAllOpenChecks()" class="hidden text-xs font-medium text-[#B45309] hover:text-stone-950 underline whitespace-nowrap">
+                Alle übersteuern &amp; weiter →
               </button>
-              <button onclick="resetPreflightTurns()" class="text-[11px] text-stone-400 hover:text-stone-900">
+              <button onclick="resetPreflightTurns()" class="text-[11px] text-stone-400 hover:text-stone-900 whitespace-nowrap">
                 Zähler zurücksetzen
               </button>
             </div>
@@ -476,17 +499,17 @@
 
           <!-- DYNAMIC CHECK ROWS -->
           <div id="checksGrid" class="divide-y hairline-border border-y hairline-border bg-[#FAF9F6]">
-            <div class="p-4 text-xs text-stone-500 flex items-center justify-between">
-              <span>Starten Sie oben die Auto-Prüfung oder eine Einzelmessung für Bild (2A) oder Ton (2B).</span>
+            <div class="p-4 text-xs text-stone-600 flex items-center justify-between">
+              <span>Klicken Sie oben auf <strong>«1. Kamerabild prüfen (2A)»</strong>, um die Vorprüfung zu starten.</span>
             </div>
           </div>
         </div>
 
         <!-- Direct Skip / Continue Footer -->
-        <div class="pt-1 flex items-center justify-between text-xs text-stone-500">
-          <span>Jeder Prüfpunkt kann einzeln übersteuert werden.</span>
-          <button onclick="overrideAllOpenChecks(); switchWorkspaceTab('record');" class="text-stone-900 font-medium hover:underline">
-            Weiter zur Studio-Aufnahme (Schritt 03) →
+        <div class="pt-1 flex items-center justify-between gap-2 text-xs text-stone-500">
+          <span>Jeder Hinweis ist optional und kann übersteuert werden.</span>
+          <button onclick="overrideAllOpenChecks(); switchWorkspaceTab('record');" class="text-stone-900 font-medium hover:underline whitespace-nowrap shrink-0">
+            Direkt zu Schritt 03 (Aufnahme) →
           </button>
         </div>
       </div>
@@ -714,11 +737,14 @@
         }
       });
 
-      // Automatically show integrated Teleprompter on monitor when entering Step 03 (Studio-Aufnahme)
+      // Automatically show integrated Teleprompter on monitor when entering Step 03 (Studio-Aufnahme),
+      // and hide it when entering Step 02 (Vorprüfung) so the camera viewfinder is unobstructed.
       if (tab === 'record') {
         document.getElementById('audioTestPromptOverlay').classList.add('hidden');
         renderTeleprompterMonitorHtml();
         toggleTeleprompterOverlay(true);
+      } else if (tab === 'preflight') {
+        toggleTeleprompterOverlay(false);
       }
     }
 
@@ -978,41 +1004,89 @@
       return canvas.toDataURL('image/jpeg', 0.85);
     }
 
-    function recordMicSnippetWithCountdown(durationMs = 4200) {
-      return new Promise((resolve) => {
-        if (!webcamStream) {
+    let activeAudioCheckRecorder = null;
+    let activeAudioCheckInterval = null;
+
+    function stopAudioCheckRecordingEarly() {
+      if (activeAudioCheckRecorder && activeAudioCheckRecorder.state === 'recording') {
+        activeAudioCheckRecorder.stop();
+      }
+    }
+
+    async function runPreRollCountdown(badgeEl, titleEl, stepMs = 650) {
+      for (let count = 3; count >= 1; count--) {
+        if (badgeEl) {
+          badgeEl.className = 'text-xs font-mono-tabular px-2.5 py-0.5 bg-[#B45309] text-white font-semibold';
+          badgeEl.textContent = `Vorzähler: Start in ${count}…`;
+        }
+        if (titleEl) {
+          titleEl.textContent = `Bitte bereitmachen — Aufnahme startet in ${count}…`;
+        }
+        await new Promise(r => setTimeout(r, stepMs));
+      }
+    }
+
+    function recordMicSnippetWithCountdown(durationMs = 6000) {
+      return new Promise(async (resolve) => {
+        const progWrap = document.getElementById('audioRecProgressWrap');
+        const progBar = document.getElementById('audioRecProgressBar');
+        const badge = document.getElementById('audioRecCountdownBadge');
+        const hintEl = document.getElementById('audioPromptStepHint');
+        const titleEl = document.getElementById('audioAttemptTitle');
+        const statsEl = document.getElementById('audioAttemptStats');
+        const btnEarly1 = document.getElementById('btnStopAudioEarly');
+        const btnEarly2 = document.getElementById('btnStopAudioEarlyOverlay');
+
+        const hasLiveMic = Boolean(webcamStream && webcamStream.getAudioTracks && webcamStream.getAudioTracks().length > 0);
+
+        // 1. Pre-Roll 3-2-1 Countdown so speaker can read the sentence before mic opens
+        if (hintEl) hintEl.textContent = '2B TONPRÜFUNG — BITTE SATZ BEREITMACHEN (START NACH VORZÄHLER)';
+        await runPreRollCountdown(badge, titleEl, hasLiveMic ? 650 : 220);
+
+        if (!hasLiveMic) {
+          if (badge) {
+            badge.className = 'text-xs font-mono-tabular px-2.5 py-0.5 bg-stone-800 text-white font-medium';
+            badge.textContent = 'Wird ausgewertet…';
+          }
           resolve(null);
           return;
         }
+
         try {
           const audioTracks = webcamStream.getAudioTracks();
-          if (!audioTracks.length) {
-            resolve(null);
-            return;
-          }
           const audioStream = new MediaStream(audioTracks);
           const rec = new MediaRecorder(audioStream);
+          activeAudioCheckRecorder = rec;
           const chunks = [];
           rec.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
 
-          const progWrap = document.getElementById('audioRecProgressWrap');
-          const progBar = document.getElementById('audioRecProgressBar');
-          const badge = document.getElementById('audioRecCountdownBadge');
+          if (hintEl) hintEl.textContent = '● JETZT SPRECHEN — BITTE DEN EINGEBLENDETEN SATZ IN RUHE VORLESEN';
+          if (titleEl) titleEl.textContent = `● Aufnahme läuft — Bitte jetzt den ersten Satz vorlesen`;
+          if (statsEl) statsEl.textContent = 'Klicken Sie auf «Fertig gesprochen ✓», sobald Sie am Satzende sind';
+          if (btnEarly1) btnEarly1.classList.remove('hidden');
+          if (btnEarly2) btnEarly2.classList.remove('hidden');
+
           progWrap.classList.remove('hidden');
           progBar.style.width = '0%';
+          badge.className = 'text-xs font-mono-tabular px-2.5 py-0.5 bg-[#C81E1E] text-white font-semibold';
 
           const startTs = Date.now();
-          const timer = setInterval(() => {
+          activeAudioCheckInterval = setInterval(() => {
             const elapsed = Date.now() - startTs;
             const pct = Math.min(100, Math.round((elapsed / durationMs) * 100));
             const rem = Math.max(0, ((durationMs - elapsed) / 1000)).toFixed(1);
             progBar.style.width = pct + '%';
-            badge.textContent = `Aufnahme läuft: noch ${rem}s`;
+            badge.textContent = `● JETZT SPRECHEN: noch ${rem}s`;
           }, 100);
 
           rec.onstop = () => {
-            clearInterval(timer);
+            if (activeAudioCheckInterval) clearInterval(activeAudioCheckInterval);
+            activeAudioCheckInterval = null;
+            activeAudioCheckRecorder = null;
             progWrap.classList.add('hidden');
+            if (btnEarly1) btnEarly1.classList.add('hidden');
+            if (btnEarly2) btnEarly2.classList.add('hidden');
+            badge.className = 'text-xs font-mono-tabular px-2.5 py-0.5 bg-stone-800 text-white font-medium';
             badge.textContent = 'Wird ausgewertet…';
             const blob = new Blob(chunks, { type: 'audio/webm' });
             const reader = new FileReader();
@@ -1196,11 +1270,15 @@
           const bA = document.getElementById('stepLoopABadge');
           bA.className = 'px-2.5 py-0.5 bg-[#15803D] text-white font-semibold transition-all';
           bA.textContent = '✓ 2A Bild gelöst';
+          updateGuidedStepFlow('visual_done');
         } else {
           const bB = document.getElementById('stepLoopBBadge');
           bB.className = 'px-2.5 py-0.5 bg-[#15803D] text-white font-semibold transition-all';
           bB.textContent = '✓ 2B Ton gelöst';
+          updateGuidedStepFlow('audio_done');
         }
+      } else if (totalCount > 0) {
+        updateGuidedStepFlow(stage === 'visual' ? 'visual_open' : 'audio_open');
       }
 
       if (openIssuesCount > 0) {
@@ -1210,6 +1288,53 @@
           : `Alle ${openIssuesCount} übersteuern & zur Aufnahme →`;
       } else {
         btnOverrideAll.classList.add('hidden');
+      }
+    }
+
+    function updateGuidedStepFlow(state) {
+      const btnVis = document.getElementById('btnSingleVisual');
+      const btnAud = document.getElementById('btnSingleAudio');
+      const banner = document.getElementById('guidedNextStepBanner');
+      if (!btnVis || !btnAud || !banner) return;
+
+      if (state === 'visual_done') {
+        btnVis.className = 'py-2.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5 bg-[#F0FDF4] border border-[#15803D] text-[#15803D] transition';
+        btnVis.innerHTML = '<span>✓ 1. Kamerabild gelöst (2A)</span>';
+        btnAud.className = 'btn-primary py-2.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5 ring-2 ring-stone-900/15';
+        btnAud.innerHTML = '<span>→ 2. Jetzt Ton &amp; Tempo prüfen (2B)</span>';
+        banner.className = 'p-3 bg-[#F0FDF4] border border-[#15803D] flex items-center justify-between gap-3';
+        banner.innerHTML = `
+          <span class="text-xs font-semibold text-[#14532D]">✓ Schritt 2A (Kamerabild) ist bereit!</span>
+          <button onclick="runSingleAudioCheck(true)" class="px-3 py-1.5 bg-[#15803D] hover:bg-emerald-800 text-white text-xs font-medium transition whitespace-nowrap shrink-0">
+            Weiter zu 2B: Tonprüfung starten →
+          </button>
+        `;
+      } else if (state === 'audio_done') {
+        btnVis.className = 'py-2.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5 bg-[#F0FDF4] border border-[#15803D] text-[#15803D] transition';
+        btnVis.innerHTML = '<span>✓ 1. Kamerabild gelöst (2A)</span>';
+        btnAud.className = 'py-2.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5 bg-[#F0FDF4] border border-[#15803D] text-[#15803D] transition';
+        btnAud.innerHTML = '<span>✓ 2. Tonprüfung gelöst (2B)</span>';
+        banner.className = 'p-3.5 bg-[#15803D] text-white flex items-center justify-between gap-3 shadow-sm';
+        banner.innerHTML = `
+          <span class="text-xs font-semibold">✓ Vorprüfung (Bild &amp; Ton) komplett gelöst!</span>
+          <button onclick="switchWorkspaceTab('record')" class="px-3.5 py-1.5 bg-white text-[#14532D] hover:bg-stone-100 text-xs font-semibold transition whitespace-nowrap shrink-0">
+            Weiter zu Schritt 03: Studio-Aufnahme →
+          </button>
+        `;
+      } else if (state === 'audio_open') {
+        btnAud.className = 'btn-primary py-2.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5';
+        btnAud.innerHTML = `<span>2. Satz nochmals einsprechen (Versuch #${currentTurnAudio})</span>`;
+        banner.className = 'hidden';
+      } else if (state === 'visual_open') {
+        btnVis.className = 'btn-primary py-2.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5';
+        btnVis.innerHTML = `<span>1. Kamerabild erneut prüfen (Versuch #${currentTurnVisual})</span>`;
+        banner.className = 'hidden';
+      } else {
+        btnVis.className = 'btn-primary py-2.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5';
+        btnVis.innerHTML = '<span>1. Kamerabild prüfen (2A)</span>';
+        btnAud.className = 'btn-secondary py-2.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5';
+        btnAud.innerHTML = '<span>2. Ton &amp; Tempo prüfen (2B)</span>';
+        banner.className = 'hidden';
       }
     }
 
@@ -1252,6 +1377,7 @@
           const bB = document.getElementById('stepLoopBBadge');
           bB.className = 'px-2 py-0.5 bg-stone-900 text-white font-medium';
           bB.textContent = '2B Ton';
+          updateGuidedStepFlow('visual_done');
           const msg = 'Kamerabild freigegeben. Weiter mit Schritt 2B: Bitte sprechen Sie den ersten Satz für die Tonprüfung ein.';
           setBanner('PASS', '2A BILD FREIGEGEBEN', msg);
           await playCoachAudio(null, msg);
@@ -1265,11 +1391,13 @@
           const bB = document.getElementById('stepLoopBBadge');
           bB.className = 'px-2.5 py-0.5 bg-[#15803D] text-white font-semibold transition-all';
           bB.textContent = '✓ 2B Ton gelöst';
+          updateGuidedStepFlow('audio_done');
           const msg = 'Tonprüfung freigegeben. Der Teleprompter ist bereit für Ihre Aufnahme in Schritt 03.';
           setBanner('PASS', 'VORPRÜFUNG ABGESCHLOSSEN', msg);
           await playCoachAudio(null, msg);
         }
       } else {
+        updateGuidedStepFlow(lastChecksStage === 'visual' ? 'visual_open' : 'audio_open');
         const nextCorrection = remainingOpen.map(c => c.correction).filter(Boolean).join(' ');
         const hasFail = remainingOpen.some(c => (c.original_status || c.status) === 'FAIL');
         setBanner(hasFail ? 'FAIL' : 'WARN', lastChecksStage === 'visual' ? '2A KAMERABILD' : '2B TON & SPRECHTEMPO', nextCorrection);
@@ -1352,7 +1480,7 @@
       const showId = document.getElementById('showSelect').value;
       const btnAudio = document.getElementById('btnSingleAudio');
       btnAudio.disabled = true;
-      btnAudio.textContent = `Aufnahme #${attemptNum} läuft (4s)…`;
+      btnAudio.innerHTML = `<span>Tonmessung #${attemptNum} startet (3–2–1)…</span>`;
 
       // Show dedicated Sentence-1 prompt overlay (without touching #teleprompterOverlay!)
       document.getElementById('teleprompterOverlay').classList.add('hidden');
@@ -1362,13 +1490,13 @@
 
       const statusBox = document.getElementById('audioTestStatusBox');
       statusBox.classList.remove('hidden');
-      document.getElementById('audioAttemptTitle').textContent = `Tonmessung #${attemptNum} — Bitte jetzt sprechen`;
-      document.getElementById('audioAttemptStats').textContent = '4.2s Mikrofon-Aufnahme…';
+      document.getElementById('audioAttemptTitle').textContent = `Tonmessung #${attemptNum} — Vorzähler läuft (3–2–1)…`;
+      document.getElementById('audioAttemptStats').textContent = 'Bitte Satz bereitmachen…';
 
-      setBanner('INFO', `2B TONMESSUNG #${attemptNum}`, 'Bitte lesen Sie jetzt den eingeblendeten ersten Satz laut vor…', `Ton #${attemptNum}`);
-      const customAudio = await recordMicSnippetWithCountdown(4200);
+      setBanner('INFO', `2B TONMESSUNG #${attemptNum}`, 'Machen Sie sich bereit: Nach dem kurzen Vorzähler (3–2–1) lesen Sie bitte den eingeblendeten Satz in Ruhe vor.', `Ton #${attemptNum}`);
+      const customAudio = await recordMicSnippetWithCountdown(6000);
 
-      setBanner('INFO', `2B AUSWERTUNG #${attemptNum}`, `Tonmessung #${attemptNum} wird mit FFmpeg EBUR128 und Gemini analysiert…`, `Ton #${attemptNum}`);
+      setBanner('INFO', `2B AUSWERTUNG #${attemptNum}`, `Tonmessung #${attemptNum} wird ausgewertet…`, `Ton #${attemptNum}`);
 
       try {
         const resp = await fetch('/api/preflight/audio', {
@@ -1409,12 +1537,11 @@
           `<div>Versuch #${h.turn} (${h.timestamp}): ${h.telemetry?.lufs} LUFS · ${h.telemetry?.wpm} WPM (${h.telemetry?.speech_duration_sec}s) → ${h.overall_audio_status}</div>`
         ).join('');
 
-        renderCheckCards(data.checks, data.delta_note || '', 'audio');
-        setBanner(data.overall_audio_status, `2B TON & TEMPO (#${attemptNum})`, data.studio_banner_de, `Ton #${attemptNum}`);
         currentTurnAudio++;
         isCheckingInFlight = false;
         btnAudio.disabled = false;
-        btnAudio.textContent = `2B · Ersten Satz neu einsprechen (Versuch #${currentTurnAudio})`;
+        renderCheckCards(data.checks, data.delta_note || '', 'audio');
+        setBanner(data.overall_audio_status, `2B TON & TEMPO (#${attemptNum})`, data.studio_banner_de, `Ton #${attemptNum}`);
 
         await playCoachAudio(data.tts_audio_b64, data.studio_banner_de);
         return data;
@@ -1422,7 +1549,7 @@
         promptOverlay.classList.add('hidden');
         isCheckingInFlight = false;
         btnAudio.disabled = false;
-        btnAudio.textContent = '2B · Ersten Satz neu einsprechen (4s)';
+        btnAudio.innerHTML = '<span>2. Ton &amp; Tempo prüfen (2B)</span>';
         setBanner('FAIL', 'FEHLER', 'Tonprüfung fehlgeschlagen: ' + e.message);
         return null;
       }
@@ -1436,8 +1563,8 @@
       }
       currentLoopStage = 'visual';
       const btn = document.getElementById('btnAutoPreflight');
-      btn.textContent = 'Auto-Prüfung anhalten';
-      btn.className = 'col-span-2 py-2.5 px-4 bg-[#B45309] text-white text-xs font-medium flex items-center justify-center gap-2 transition';
+      btn.textContent = 'Automatischer Durchlauf aktiv — Klicken zum Anhalten';
+      btn.className = 'w-full py-2 px-3 bg-[#B45309] text-white text-xs font-medium flex items-center justify-center gap-2 transition';
       executeNextHandsFreeStep();
     }
 
@@ -1448,8 +1575,8 @@
       }
       document.getElementById('countdownBox').classList.add('hidden');
       const btn = document.getElementById('btnAutoPreflight');
-      btn.textContent = 'Auto-Prüfung starten (4-Sekunden-Intervall)';
-      btn.className = 'col-span-2 btn-primary py-2.5 px-4 text-xs font-medium flex items-center justify-center gap-2';
+      btn.textContent = 'Oder: Automatischer Durchlauf (prüft 2A & 2B selbstständig alle 4 Sekunden)';
+      btn.className = 'w-full btn-secondary py-1.5 px-3 text-[11px] text-stone-600 hover:text-stone-950 flex items-center justify-center gap-2';
     }
 
     async function executeNextHandsFreeStep() {
@@ -1518,7 +1645,7 @@
       document.getElementById('audioTestStatusBox').classList.add('hidden');
       document.getElementById('checksProgressBadge').classList.add('hidden');
       document.getElementById('checksProgressBarWrap').classList.add('hidden');
-      document.getElementById('btnSingleAudio').textContent = '2B · Ersten Satz neu einsprechen (4s)';
+      updateGuidedStepFlow('reset');
       const bA = document.getElementById('stepLoopABadge');
       bA.className = 'px-2 py-0.5 bg-stone-900 text-white font-medium';
       bA.textContent = '2A Bild';
@@ -1540,18 +1667,42 @@
         btn.disabled = true;
         return;
       }
-      if (!webcamStream) {
-        alert('Bitte erlauben Sie den Zugriff auf Kamera und Mikrofon im Browser.');
-        return;
-      }
 
       stopCoachAudio();
       document.getElementById('audioTestPromptOverlay').classList.add('hidden');
       renderTeleprompterMonitorHtml();
       toggleTeleprompterOverlay(true);
       resetTeleprompterScroll();
+
+      // 3-2-1 Studio-Countdown before starting recording and Teleprompter auto-scroll
+      btn.disabled = true;
+      recBadge.classList.remove('hidden');
+      const hasCam = Boolean(webcamStream);
+      for (let c = 3; c >= 1; c--) {
+        recBadge.className = 'text-[11px] font-mono-tabular px-2.5 py-0.5 bg-[#B45309] text-white font-semibold';
+        recBadge.textContent = `START IN ${c}…`;
+        btn.textContent = `Studio-Vorzähler: Start in ${c}…`;
+        setBanner('INFO', 'STUDIO-VORZÄHLER', `Aufnahme und Teleprompter starten in ${c}… Bitte blicken Sie in die Kamera.`);
+        await new Promise(r => setTimeout(r, hasCam ? 650 : 250));
+      }
+
       startTeleprompterAutoScroll();
 
+      if (!hasCam) {
+        // Fallback studio simulation mode when browser has no physical webcam attached
+        recBadge.className = 'text-[11px] font-mono-tabular px-2 py-0.5 bg-[#C81E1E] text-white font-medium';
+        recBadge.textContent = 'REC 00:00 (SIMULATION)';
+        btn.textContent = 'Studio-Simulationsaufnahme wird verarbeitet…';
+        await new Promise(r => setTimeout(r, 1200));
+        stopTeleprompterAutoScroll();
+        recBadge.classList.add('hidden');
+        await runPostprod(null);
+        btn.textContent = 'Neue Aufnahme mit Teleprompter starten';
+        btn.disabled = false;
+        return;
+      }
+
+      btn.disabled = false;
       recordedChunksTake = [];
       mediaRecorderTake = new MediaRecorder(webcamStream);
       mediaRecorderTake.ondataavailable = e => { if (e.data && e.data.size > 0) recordedChunksTake.push(e.data); };
@@ -1567,7 +1718,7 @@
       };
       mediaRecorderTake.start();
       recSeconds = 0;
-      recBadge.classList.remove('hidden');
+      recBadge.className = 'text-[11px] font-mono-tabular px-2 py-0.5 bg-[#C81E1E] text-white font-medium';
       recBadge.textContent = 'REC 00:00';
       recTimerInterval = setInterval(() => {
         recSeconds++;
@@ -1580,9 +1731,8 @@
     }
 
     async function runPostprod(customVideoB64) {
-      if (!customVideoB64) return;
       const showId = document.getElementById('showSelect').value;
-      setBanner('INFO', 'ROHSCHNITT & MASTERING', 'Aufnahme wird analysiert (edl.json) und in 16:9 sowie 9:16 (-16.0 LUFS) geschnitten…');
+      setBanner('INFO', 'ROHSCHNITT & MASTERING', 'Aufnahme wird analysiert und in 16:9 sowie 9:16 (-16.0 LUFS) geschnitten…');
       try {
         const resp = await fetch('/api/postprod', {
           method: 'POST',
@@ -1623,6 +1773,10 @@
         document.getElementById('skillCountBadge').textContent = skillsCache.length;
         const sel = document.getElementById('drawerSkillSelect');
         sel.innerHTML = skillsCache.map(s => `<option value="${s.id}">${s.kind === 'show' ? '[Sendung] ' : '[Modul] '}${s.id}</option>`).join('');
+        const activeShow = document.getElementById('showSelect')?.value || 'seneca-show-aktuell';
+        if (skillsCache.some(s => s.id === activeShow)) {
+          sel.value = activeShow;
+        }
         onDrawerSkillSelect();
       } catch (e) {}
     }
@@ -1636,7 +1790,7 @@
         onDrawerSkillSelect();
       }
       document.getElementById('activeSkillTitleInStep2').textContent =
-        showId === 'seneca-show-aktuell' ? 'Aktives Regelwerk: Studio Analyse' : 'Aktives Regelwerk: Finanz Kompakt';
+        showId === 'seneca-show-aktuell' ? 'Aktives Regelwerk: Format Aktuell' : 'Aktives Regelwerk: Finanz Kompakt';
       await loadTeleprompterScript();
       setBanner('INFO', 'SENDUNGSFORMAT', `Format-Vorgaben und Teleprompter-Manuskript für «${showId}» geladen.`);
     }
@@ -1652,20 +1806,26 @@
 
     function buildSampleRuleLine(kind) {
       if (kind === 'coffee') {
-        return '\n- **coffee_mug (Kaffeetassen- & Getränke-Check)**: Es darf KEINE Kaffeetasse, Trinkflasche oder Geschirr im Bild sichtbar sein.';
+        return '\n- **Keine Kaffeetasse**: Es darf keine Kaffeetasse, Trinkflasche oder Geschirr im Bild sichtbar sein.';
       } else if (kind === 'headset') {
-        return '\n- **no_headset (Kopfhörer-Verbot)**: Der Sprecher darf KEINE sichtbaren Kopfhörer, AirPods oder ein Headset tragen (nur Studiomikrofon erlaubt).';
+        return '\n- **Kein Kopfhörer**: Keine sichtbaren Kopfhörer, AirPods oder Headsets im Bild (nur freies Sprechen ins Mikrofon).';
       } else if (kind === 'smile') {
-        return '\n- **expression (Blickkontakt)**: Der Sprecher blickt direkt in die Kameralinse mit ruhigem, zugewandtem Ausdruck.';
+        return '\n- **Blickkontakt**: Ruhiger, direkter Blick in die Kameralinse mit freundlichem Ausdruck.';
       }
       return '';
+    }
+
+    function findPostprodSectionIndex(mdText) {
+      const idx1 = mdText.indexOf('## 3. Automatischer Rohschnitt');
+      if (idx1 !== -1) return idx1;
+      return mdText.indexOf('## 3. Post-Production');
     }
 
     function injectSampleRule(kind) {
       const ed = document.getElementById('skillMarkdownEditor');
       const ruleLine = buildSampleRuleLine(kind);
       const val = ed.value;
-      const idx = val.indexOf('## 3. Post-Production');
+      const idx = findPostprodSectionIndex(val);
       if (idx !== -1) {
         ed.value = val.slice(0, idx).trimEnd() + ruleLine + '\n\n' + val.slice(idx);
       } else {
@@ -1684,7 +1844,7 @@
         return;
       }
       const val = found.skill_md;
-      const idx = val.indexOf('## 3. Post-Production');
+      const idx = findPostprodSectionIndex(val);
       const newMd = idx !== -1
         ? val.slice(0, idx).trimEnd() + ruleLine + '\n\n' + val.slice(idx)
         : val + ruleLine;

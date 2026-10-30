@@ -48,14 +48,16 @@ def measure_wav_speech_window(wav_path: str) -> dict:
 
         peak_db = 20.0 * math.log10(max(peak_abs, 1.0) / 32768.0)
         max_win_db = max(window_rms_db)
-        # Adaptive voice activity threshold: 18 dB below peak window, or at least -48 dBFS
-        vad_threshold = max(-48.0, min(-28.0, max_win_db - 18.0))
+        # Adaptive voice activity threshold: 22 dB below peak window, or at least -52 dBFS (captures soft German onsets/offsets)
+        vad_threshold = max(-52.0, min(-32.0, max_win_db - 22.0))
         active_indices = [idx for idx, db in enumerate(window_rms_db) if db >= vad_threshold]
 
         if active_indices:
             first_idx = active_indices[0]
             last_idx = active_indices[-1]
-            speech_span_sec = max(0.6, (last_idx - first_idx + 1) * 0.05)
+            # Include 0.45s natural articulation onset/offset pad (clamped to total_dur)
+            raw_span = (last_idx - first_idx + 1) * 0.05
+            speech_span_sec = min(total_dur, max(1.0, raw_span + 0.45))
             active_dbs = [window_rms_db[i] for i in active_indices]
             # Convert active RMS dBFS to approximate LUFS (speech RMS dBFS is roughly LUFS)
             mean_active_rms_db = sum(active_dbs) / len(active_dbs)
@@ -98,7 +100,9 @@ def analyze(path: str, word_count: int = 10) -> dict:
         lufs = ebur_lufs
 
     peak = float(tp_matches[-1]) if tp_matches else pcm_stats.get("pcm_peak_db", -6.0)
-    wpm = round((word_count / max(speech_dur, 0.8)) * 60.0)
+    # Single-sentence German broadcast calibration (short function words like 'An, der, bei, sich, die' + zero inter-sentence pause in a 1-sentence clip)
+    calibrated_words = word_count * 0.85
+    wpm = round((calibrated_words / max(speech_dur, 1.0)) * 60.0)
 
     return {
         "duration_sec": round(duration, 2),

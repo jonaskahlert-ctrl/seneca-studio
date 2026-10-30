@@ -1,26 +1,25 @@
 ---
 name: seneca-show-aktuell
-description: Declarative production playbook for Studio Analyse (Ukraine & Geopolitics video commentary, 3-5 min).
+description: Redaktionelles Format-Regelwerk für Format Aktuell (Geopolitik-Analyse, 16:9 Hauptvideo und 9:16 Kurzformat).
 ---
 
-# Show Playbook: Studio Analyse (Geopolitik-Briefing)
+# Format-Regeln: Format Aktuell (Geopolitik-Analyse)
 
-## 1. Script Preparation (`phase: script`)
-Use `seneca-prep-teleprompter` with these format rules:
-- **Tonfall**: Analytisch, ruhig, präzise Seneca-Sprache; kurze Hauptsätze für freies Sprechen.
-- **Ziel-Sprechtempo**: 130 Wörter pro Minute (max. 140 WPM).
-- **Marker**: Setze `[BETONUNG]` bei Schlüsselbegriffen und `[PAUSE 0.5s]` bei Themenwechseln.
+Dieses Dokument legt in einfacher Sprache fest, wie Manuskript, Kamerabild, Ton und Schnitt für diese Sendung vorbereitet und geprüft werden. Neue Regeln können jederzeit als normale Aufzählungspunkte ergänzt werden.
 
-## 2. Studio Pre-Flight Check (`phase: preflight`)
-Run `seneca-check-studio-visuals` (Loop A) and `seneca-check-audio-pace` (Loop B) against these show thresholds:
-- **framing (Kameradistanz & Bildausschnitt)**: Sprecher mittig zentriert, Augenlinie im oberen Drittel (ca. 30% vom oberen Rand), Schultern vollständig sichtbar, mind. 10% Kopfraum.
-- **lighting (Beleuchtung & Kontrast)**: Gleichmässige Gesichtsausleuchtung von vorn; kein hartes Gegenlicht durch Fenster im Hintergrund; keine starken Reflexionen in der Brille.
-- **background (Hintergrund & Studio-Ordnung)**: Aufgeräumter Redaktions- oder Karten-Hintergrund; keine störenden Gegenstände im Bild.
-- **audio_lufs (Mikrofon-Pegel & Raumklang)**: Zielwert -16.0 LUFS (Toleranz -18.0 bis -14.0 LUFS), Spitzenpegel unter -1.5 dBTP, kein Übersteuern (Clipping).
-- **speaking_pace (Sprechgeschwindigkeit)**: Zielkorridor 115 bis 140 Wörter pro Minute (WPM) beim Vorlesen des ersten Skriptsatzes.
+## 1. Manuskript & Teleprompter
+- **Sprachstil**: Ruhig, analytisch und sachlich; kurze, gut sprechbare Hauptsätze.
+- **Gliederung**: Fünf übersichtliche Abschnitte für etwa 60 bis 75 Sekunden Sprechzeit.
+- **Lesehilfen**: Wichtige Schlüsselwörter im Text mit `[BETONUNG]` markieren und natürliche Sprechpausen mit `[ATEMPAUSE]` kennzeichnen.
 
-## 3. Post-Production (`phase: postprod`)
-Run `seneca-auto-cut-master`:
-- **Retake-Erkennung**: Wenn der Sprecher sich verspricht oder einen Satz neu ansetzt, behalte ausschliesslich den letzten sauberen Take.
-- **Pausen-Glättung**: Kürze Sprechpausen über 0.8 Sekunden automatisch auf natürliche 0.25 Sekunden.
-- **Ausgabeformate**: Rendere `master_16x9.mp4` (Seneca Web Player) und `reel_9x16.mp4` (Social Vertical mit Seneca Bauchbinde).
+## 2. Kamera & Ton (Vorprüfung)
+- **Bildausschnitt**: Gesicht und obere Schultern gut sichtbar in der Bildmitte, etwas Platz über dem Kopf (normaler Laptop- oder Webcam-Abstand genügt völlig).
+- **Beleuchtung**: Gesicht freundlich und klar erkennbar; normales Tages-, Zimmer- oder Bildschirmlicht reicht aus (leichte Spiegelungen in der Brille sind kein Problem).
+- **Hintergrund**: Ruhiger, ordentlicher Arbeitsplatz, Büro oder Wohnraum ohne ablenkende Unordnung direkt hinter dem Sprecher.
+- **Mikrofon & Lautstärke**: Klar verständliche Stimme in normaler Sprechlautstärke ohne Übersteuern (Zielbereich ca. -26 bis -12 LUFS am Laptop- oder Studiomikrofon).
+- **Sprechtempo**: Ruhiger, natürlicher Nachrichtenfluss beim Vorlesen des ersten Satzes (ca. 100 bis 160 Wörter pro Minute).
+
+## 3. Automatischer Rohschnitt
+- **Versprecher entfernen**: Wenn ein Satz neu angesetzt wird, bleibt nur der letzte gelungene Durchgang erhalten.
+- **Pausen glätten**: Längere Denkpausen über einer Sekunde werden sanft gekürzt, damit ein flüssiger Eindruck entsteht.
+- **Ausgabeformate**: Erstellt automatisch ein Querformat-Video (16:9 für Web) und ein Hochformat-Video (9:16 für Mobile), einheitlich ausgesteuert auf Sendelautstärke (-16 LUFS).

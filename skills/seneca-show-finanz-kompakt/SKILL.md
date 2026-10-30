@@ -1,21 +1,25 @@
 ---
-name: seneca-seneca-show-finanz-kompakt
-description: Declarative production playbook for Seneca Finanz Kompakt (60s 9:16 vertical social briefing).
+name: seneca-show-finanz-kompakt
+description: Redaktionelles Format-Regelwerk für Finanz Kompakt (60 Sekunden 9:16 Kurzvideo für Mobile).
 ---
 
-# Show Playbook: Seneca Finanz Kompakt (60s Social Reel)
+# Format-Regeln: Finanz Kompakt (60s Kurzformat)
 
-## 1. Script Preparation (`phase: script`)
-- **Tonfall**: Dynamisch, auf den Punkt, max. 130 Wörter Gesamtlänge (60 Sekunden).
-- **Hook**: Erster Satz muss die wichtigste Marktbewegung in unter 4 Sekunden nennen.
+Dieses Dokument beschreibt in einfacher Sprache die Vorgaben für das tägliche Wirtschafts- und Börsen-Update im Hochformat.
 
-## 2. Studio Pre-Flight Check (`phase: preflight`)
-- **framing (Vertikaler 9:16 Safe-Zone Check)**: Sprecher strikt im mittleren 9:16-Korridor zentriert (mind. 25% Platz links/rechts für Hochformat-Beschnitt).
-- **lighting (Studio-Licht)**: Helle, kontrastreiche Ausleuchtung ohne Schattenwurf.
-- **background (Börsen-/Newsroom-Hintergrund)**: Ruhiger Newsroom-Hintergrund ohne lesbare fremde Bildschirme.
-- **audio_lufs (Mikrofon-Pegel)**: Zielwert -14.0 LUFS (lauter gemastert für Mobile Feeds, Toleranz -16.0 bis -12.5 LUFS).
-- **speaking_pace (Sprechgeschwindigkeit)**: Dynamischer Korridor 135 bis 155 WPM.
+## 1. Manuskript & Teleprompter
+- **Sprachstil**: Kompakt, lebendig und direkt auf den Punkt; maximal 130 Wörter Gesamtlänge (rund 60 Sekunden).
+- **Einstieg**: Der erste Satz nennt sofort die wichtigste Marktbewegung des Tages.
+- **Lesehilfen**: Zentrale Zahlen und Begriffe mit `[BETONUNG]` hervorheben, kurze Sprechpausen mit `[ATEMPAUSE]` markieren.
 
-## 3. Post-Production (`phase: postprod`)
-- **Schnittrhythmus**: Alle Pausen über 0.4 Sekunden entfernen (Jump-Cut-Stil für Mobile).
-- **Ausgabeformate**: Primär `reel_9x16.mp4` mit eingebrannten Untertiteln.
+## 2. Kamera & Ton (Vorprüfung)
+- **Bildausschnitt**: Sprecher mittig im Bild, damit beim späteren 9:16-Hochformat links und rechts nichts abgeschnitten wird.
+- **Beleuchtung**: Helles, klares Licht von vorn; normales Büro- oder Tageslicht genügt.
+- **Hintergrund**: Aufgeräumter Arbeitsplatz oder ruhiger Raumhintergrund.
+- **Mikrofon & Lautstärke**:Präsente, gut verständliche Stimme ohne Übersteuern (Zielbereich ca. -26 bis -12 LUFS).
+- **Sprechtempo**: Lebendiges, flüssiges Sprechtempo (ca. 110 bis 165 Wörter pro Minute).
+
+## 3. Automatischer Rohschnitt
+- **Versprecher entfernen**: Bei Korrekturen oder Neustarts wird automatisch nur die saubere Fassung übernommen.
+- **Schnittrhythmus**: Pausen über einer halben Sekunde werden straff gekürzt.
+- **Ausgabeformate**: Erstellt sowohl das 9:16-Hochformat für Mobile als auch das 16:9-Querformat in normierter Sendelautstärke (-16 LUFS).

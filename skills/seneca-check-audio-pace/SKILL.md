@@ -1,10 +1,12 @@
 ---
 name: seneca-check-audio-pace
-description: Measures exact LUFS loudness, peak dBTP, and speaking pace (WPM) on the spoken first-sentence clip using deterministic FFmpeg + Gemini speech check.
+description: Prüft Mikrofonlautstärke und natürliches Sprechtempo anhand des ersten Manuskriptsatzes.
 ---
 
-# Capability Skill: Audio Loudness & Speaking Pace QA (Loop B)
+# Modul: Mikrofon & Sprechtempo prüfen (Schritt 2B)
 
-1. **Deterministic Audio Telemetry**: Always execute `python3 scripts/analyze_audio.py <clip_path> --word-count <N>` first to compute exact integrated loudness (`input_i` in LUFS), true peak (`input_tp` in dBTP), duration, and words per minute (WPM).
-2. Compare the measured LUFS and WPM against the `audio_lufs` and `speaking_pace` thresholds in the active Show Playbook (`SKILL.md`).
-3. Return `checks[]` items for `audio_lufs` and `speaking_pace` with `PASS`, `WARN`, or `FAIL` and a clear German coaching instruction.
+Dieses Modul unterstützt den Sprecher beim kurzen Soundcheck vor der Aufnahme:
+
+1. **Vorzähler & Einsprache**: Nach einem kurzen Vorzähler (3 – 2 – 1) liest der Sprecher den ersten Satz des Manuskripts in Ruhe vor.
+2. **Mikrofon-Lautstärke**: Gemessen wird, ob die Stimme klar und deutlich ankommt und nicht übersteuert. Normale Laptop-, Headset- und USB-Mikrofone werden grosszügig akzeptiert.
+3. **Sprechtempo**: Geprüft wird, ob der Satz in einem ruhigen, gut verständlichen Tempo gesprochen wurde (rund 100 bis 160 Wörter pro Minute gelten als ideal).
