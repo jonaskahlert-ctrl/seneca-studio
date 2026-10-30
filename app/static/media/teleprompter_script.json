@@ -1,0 +1,44 @@
+{
+  "show_id": "seneca-show-aktuell",
+  "title": "Studio Analyse — Die neue Realität an der Ostfront bei Pokrowsk",
+  "article_text": "An der Ostfront bei Pokrowsk verschiebt sich die militärische Dynamik spürbar. Während im ersten Kriegsjahr noch grosse Panzerverbände und geschlossene Artillerieduelle das Bild prägten, setzen die russischen Streitkräfte heute auf kleine, hochmobile Infanteriegruppen, die im Schutz der Dämmerung vorrücken. Über dem Gefechtsfeld patrouillieren ununterbrochen Aufklärungs- und FPV-Drohnen, die jede grössere Truppenbewegung innerhalb von Minuten erfassen. Für die ukrainische Verteidigung bedeutet das: Klassische Nachschublinien über asphaltierte Hauptstrassen sind kaum noch nutzbar. Munition, Verwundete und Ersatzteile müssen nachts in kleinen Etappen transportiert werden. Damit wird nicht die Zahl der Kampfpanzer, sondern die geschützte Logistik auf den letzten zehn Kilometern zur entscheidenden Schlüsselfrage des kommenden Winters.",
+  "first_sentence_plain": "An der Ostfront bei Pokrowsk verschiebt sich die militärische Dynamik spürbar.",
+  "first_sentence_word_count": 11,
+  "target_wpm": 130,
+  "estimated_duration_sec": 75,
+  "storage_path": "/static/media/teleprompter_script.json",
+  "storage_txt_path": "/static/media/teleprompter_script.txt",
+  "updated_at": "00:29:01",
+  "segments": [
+    {
+      "index": 1,
+      "section": "01 ANMODERATION & EINSTIEG",
+      "spoken_text": "An der Ostfront bei [BETONUNG] POKROWSK verschiebt sich die militärische Dynamik spürbar. [ATEMPAUSE] Wer auf die Karten blickt, sieht langsame Geländegewinne — doch vor Ort hat sich die Art der Kriegsführung radikal verändert.",
+      "duration_sec": 14
+    },
+    {
+      "index": 2,
+      "section": "02 TAKTIK DER KLEINEN GRUPPEN",
+      "spoken_text": "Statt grosser [BETONUNG] PANZERKOLONNEN setzen die russischen Verbände auf kleine, hochmobile Infanterietrupps. [ATEMPAUSE] Sie rücken zu dritt oder zu viert vor, nutzen Baumreihen als Deckung und testen systematisch jede Lücke in den ukrainischen Stellungen.",
+      "duration_sec": 16
+    },
+    {
+      "index": 3,
+      "section": "03 DIE GLÄSERNE FRONT DURCH DROHNEN",
+      "spoken_text": "Der Grund dafür liegt am Himmel: [PAUSE 0.5s] Ein dichter Teppich aus [BETONUNG] AUFKLÄRUNGS- UND KAMPFDROHNEN macht das Gefechtsfeld auf bis zu fünfzehn Kilometer Tiefe gläsern. [ATEMPAUSE] Jedes grössere Fahrzeug wird innerhalb weniger Minuten entdeckt und angegriffen.",
+      "duration_sec": 17
+    },
+    {
+      "index": 4,
+      "section": "04 NACHSCHUB ALS SCHLÜSSELFRAGE",
+      "spoken_text": "Für [BETONUNG] KIEW wird damit die Logistik auf den letzten zehn Kilometern zur Überlebensfrage. [ATEMPAUSE] Munition, Batterien und der Abtransport von Verwundeten können fast nur noch in der Dämmerung oder bei Nebel erfolgen.",
+      "duration_sec": 15
+    },
+    {
+      "index": 5,
+      "section": "05 AUSBLICK AUF DEN WINTER",
+      "spoken_text": "Entscheidend für den kommenden Winter ist deshalb [BETONUNG] NICHT allein die Zahl schwerer Waffen. [PAUSE 0.5s] Entscheidend ist, wer seine Versorgungslinien gegen elektronische Störung und Drohnenangriffe dauerhaft absichern kann.",
+      "duration_sec": 13
+    }
+  ]
+}

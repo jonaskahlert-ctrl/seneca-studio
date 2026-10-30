@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env
+
+# Runtime generated webcam / mic captures & rendered video masters
+app/static/media/live_webcam_*.jpg
+app/static/media/mic_*.wav
+app/static/media/mic_*.webm
+app/static/media/live_take_*.webm
+app/static/media/live_take_*.mp4
+app/static/media/master_16x9.mp4
+app/static/media/reel_9x16.mp4
+app/static/media/edl.json
+app/static/media/frame_v*.jpg
+app/static/media/audio_v*.wav
+app/static/media/raw_take.mp4
+app/static/media/test_edl.json
+app/static/media/take_raw.mp4
+app/static/media/*.zip
+
+# OS
+.DS_Store

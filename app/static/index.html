@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Seneca Studio — Redaktionelles Videostudio mit integriertem Teleprompter, Skill-gesteuerter Kamera- und Tonprüfung sowie automatischem Rohschnitt." />
+  <title>Seneca Studio — Editorial Video Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg-paper: #F6F5F0;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #EFECE6;
+      --ink-primary: #121212;
+      --ink-secondary: #52504C;
+      --ink-muted: #85827C;
+      --rule-hairline: #DCD9D0;
+      --signal-red: #C81E1E;
+      --signal-amber: #B45309;
+      --signal-green: #15803D;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-paper);
+      color: var(--ink-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-editorial {
+      font-family: 'Newsreader', Moderatoria, serif;
+      letter-spacing: -0.015em;
+    }
+
+    .font-mono-tabular {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hairline-border {
+      border-color: var(--rule-hairline);
+    }
+
+    .btn-primary {
+      background-color: #121212;
+      color: #FFFFFF;
+      transition: background-color 120ms ease;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background-color: #2E2E2E;
+    }
+    .btn-primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background-color: #FFFFFF;
+      color: #121212;
+      border: 1px solid #DCD9D0;
+      transition: background-color 120ms ease, border-color 120ms ease;
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background-color: #F6F5F0;
+      border-color: #121212;
+    }
+
+    .step-tab {
+      border-bottom: 2px solid transparent;
+      color: var(--ink-secondary);
+      transition: all 120ms ease;
+    }
+    .step-tab.active {
+      border-bottom-color: #121212;
+      color: #121212;
+      font-weight: 600;
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #C8C4BA; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-stone-900 selection:text-white">
+
+  <!-- TOP EDITORIAL MASTHEAD & STUDIO BAR -->
+  <header class="bg-white border-b hairline-border sticky top-0 z-30">
+    <div class="max-w-[1540px] mx-auto px-6 h-14 flex items-center justify-between gap-4">
+
+      <!-- Left: Seneca Masthead + Format Selector -->
+      <div class="flex items-center gap-6">
+        <div class="flex items-baseline gap-3">
+          <h1 class="font-editorial text-2xl font-medium tracking-tight text-stone-950">Seneca Studio</h1>
+          <span class="text-stone-300">|</span>
+          <span class="text-xs font-medium uppercase tracking-[0.12em] text-stone-600">Seneca Studio</span>
+        </div>
+
+        <div class="h-4 w-px bg-stone-200 hidden sm:block"></div>
+
+        <!-- Show Playbook Dropdown -->
+        <div class="flex items-center gap-2">
+          <label for="showSelect" class="text-[11px] uppercase tracking-[0.08em] text-stone-500 font-medium">Sendungsformat</label>
+          <select id="showSelect" onchange="onShowChange()" class="bg-[#F6F5F0] border hairline-border px-2.5 py-1 text-xs font-medium text-stone-900 focus:outline-none focus:border-stone-900 cursor-pointer">
+            <option value="seneca-show-aktuell">Studio Analyse (16:9 Analyse + 9:16 Kurzformat)</option>
+            <option value="seneca-seneca-show-finanz-kompakt">Finanz Kompakt (9:16 Vertikal)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Right: Voice Coach + Prominent Skills & Format Rules Trigger -->
+      <div class="flex items-center gap-3">
+
+        <!-- Chirp 3 HD Regie-Stimme -->
+        <div class="flex items-center border hairline-border bg-white px-2.5 py-1 gap-2 text-xs">
+          <span class="text-[11px] uppercase tracking-[0.06em] text-stone-500">Regie-Stimme</span>
+          <select id="voiceSelect" onchange="onVoiceSelectChange()" class="bg-transparent text-xs font-medium text-stone-900 focus:outline-none cursor-pointer">
+            <option value="de-DE-Chirp3-HD-Aoede">Aoede (Chirp 3 HD)</option>
+            <option value="de-DE-Chirp3-HD-Charon">Charon (Chirp 3 HD)</option>
+            <option value="de-DE-Chirp3-HD-Leda">Leda (Chirp 3 HD)</option>
+            <option value="OFF">Stumm</option>
+          </select>
+          <button onclick="testStudioVoice()" class="text-[11px] text-stone-500 hover:text-stone-900 underline pl-1 border-l hairline-border" title="Regie-Stimme kurz testen">
+            Prüfen
+          </button>
+        </div>
+        <audio id="coachAudioPlayer" class="hidden"></audio>
+
+        <!-- PROMINENT SKILLS / FORMAT-REGELN BUTTON -->
+        <button onclick="switchWorkspaceTab('skills')" class="btn-primary px-3.5 py-1.5 text-xs font-medium flex items-center gap-2">
+          <span>Format-Regeln &amp; Skills (<code class="font-mono-tabular">SKILL.md</code>)</span>
+          <span class="px-1.5 py-0.2 bg-white/20 font-mono-tabular text-[11px]" id="skillCountBadge">6</span>
+        </button>
+
+        <!-- Sandbox Log Trigger -->
+        <button onclick="toggleSandboxModal(true)" class="btn-secondary px-2.5 py-1.5 text-xs font-mono-tabular text-stone-600" title="Agent-Protokoll & Sandbox">
+          Protokoll
+        </button>
+      </div>
+    </div>
+
+    <!-- SECONDARY WORKFLOW STEP BAR (WITH PROMINENT STEP 04 FOR SKILLS) -->
+    <div class="border-t hairline-border bg-[#FAF9F6]">
+      <div class="max-w-[1540px] mx-auto px-6 flex items-center justify-between">
+        <nav class="flex items-center gap-7" aria-label="Produktionsschritte">
+          <button id="tabStep1" onclick="switchWorkspaceTab('script')" class="step-tab py-2.5 text-xs flex items-center gap-2">
+            <span class="font-mono-tabular text-[11px] text-stone-400">01</span>
+            <span>Teleprompter-Manuskript</span>
+          </button>
+          <button id="tabStep2" onclick="switchWorkspaceTab('preflight')" class="step-tab active py-2.5 text-xs flex items-center gap-2">
+            <span class="font-mono-tabular text-[11px] text-stone-400">02</span>
+            <span>Kamera- &amp; Ton-Vorprüfung</span>
+            <span id="navPreflightDot" class="w-1.5 h-1.5 rounded-full bg-stone-400"></span>
+          </button>
+          <button id="tabStep3" onclick="switchWorkspaceTab('record')" class="step-tab py-2.5 text-xs flex items-center gap-2">
+            <span class="font-mono-tabular text-[11px] text-stone-400">03</span>
+            <span>Studio-Aufnahme &amp; Rohschnitt</span>
+          </button>
+          <button id="tabStep4" onclick="switchWorkspaceTab('skills')" class="step-tab py-2.5 text-xs flex items-center gap-2 border-l hairline-border pl-6">
+            <span class="font-mono-tabular text-[11px] text-stone-900 font-semibold">SKILL.md</span>
+            <span>Format-Regeln verwalten (Skill Registry)</span>
+          </button>
+        </nav>
+
+        <div class="flex items-center gap-4 text-[11px] font-mono-tabular text-stone-500">
+          <span id="camStatusText">Kamera wird verbunden…</span>
+          <span class="text-stone-300">|</span>
+          <span id="lastCheckLatency">Bereit</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN STUDIO WORKSPACE (12-COLUMN ARCHITECTURAL GRID) -->
+  <main class="flex-1 max-w-[1540px] w-full mx-auto px-6 py-5 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+    <!-- LEFT 7 COLUMNS: BROADCAST MONITOR WITH INTEGRATED TELEPROMPTER -->
+    <section class="lg:col-span-7 flex flex-col gap-3">
+
+      <!-- 16:9 MATTE BROADCAST MONITOR -->
+      <div class="relative bg-[#0E0E0E] border hairline-border aspect-video overflow-hidden flex items-center justify-center">
+
+        <!-- Live Webcam Stream -->
+        <video id="webcamVideo" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
+
+        <!-- Hidden Snapshot Canvas -->
+        <canvas id="captureCanvas" width="960" height="540" class="hidden"></canvas>
+
+        <!-- Broadcast Viewfinder Markings (Subtle Architectural Hairlines) -->
+        <div id="framingGuides" class="pointer-events-none absolute inset-0">
+          <!-- Eye-line horizontal tick (30% from top) -->
+          <div class="absolute left-6 right-6 top-[30%] border-t border-white/25 flex justify-between items-start pt-1">
+            <span class="text-[10px] font-mono-tabular uppercase tracking-widest text-white/60">Augenlinie 30%</span>
+            <span class="text-[10px] font-mono-tabular uppercase tracking-widest text-white/60">16:9 HD</span>
+          </div>
+          <!-- 9:16 Center Crop Marks -->
+          <div class="absolute top-4 bottom-4 left-[34.3%] right-[34.3%] border-x border-white/20">
+            <span class="absolute bottom-1 left-2 text-[9px] font-mono-tabular uppercase tracking-widest text-white/50">9:16 Ausschnitt</span>
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- TEMPORARY SENTENCE-1 BANNER FOR STEP 02B AUDIO TEST             -->
+        <!-- (Never overwrites the full 5-section Teleprompter script!)      -->
+        <!-- =============================================================== -->
+        <div id="audioTestPromptOverlay" class="hidden absolute inset-x-8 top-6 bg-black/88 backdrop-blur-md border border-white/25 p-5 shadow-2xl">
+          <div class="flex items-center justify-between border-b border-white/15 pb-2 mb-2.5">
+            <span class="text-[11px] font-mono-tabular uppercase tracking-[0.1em] text-amber-300 font-medium">
+              2B TON- &amp; SPRECHTEMPOTEST — BITTE DIESEN ERSTEN SATZ LAUT VORLESEN
+            </span>
+            <span id="audioRecCountdownBadge" class="text-xs font-mono-tabular px-2 py-0.5 bg-[#C81E1E] text-white font-medium">
+              Aufnahme läuft…
+            </span>
+          </div>
+          <p id="audioTestSentenceDisplay" class="font-editorial text-2xl sm:text-3xl leading-snug text-white">
+            «An der Ostfront bei Pokrowsk verschiebt sich die militärische Dynamik spürbar.»
+          </p>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- INTEGRATED STUDIO TELEPROMPTER (FOR STEP 01 PREVIEW & STEP 03)  -->
+        <!-- Positioned at the upper third (camera lens eye-line)            -->
+        <!-- =============================================================== -->
+        <div id="teleprompterOverlay" class="hidden absolute inset-x-6 top-3 bottom-12 bg-black/82 backdrop-blur-sm border border-white/20 flex flex-col justify-between overflow-hidden">
+          <!-- Teleprompter Top Control Bar -->
+          <div class="px-5 py-2 bg-black/90 border-b border-white/15 flex flex-wrap items-center justify-between gap-3 z-20">
+            <div class="flex items-center gap-3">
+              <span id="recTimerBadge" class="hidden text-[11px] font-mono-tabular px-2 py-0.5 bg-[#C81E1E] text-white font-medium">REC 00:00</span>
+              <span id="tpOverlayTitle" class="text-[11px] font-mono-tabular uppercase tracking-[0.1em] text-stone-300">
+                STUDIO-TELEPROMPTER (5 ABSCHNITTE)
+              </span>
+            </div>
+            <div class="flex items-center gap-3 text-[11px] font-mono-tabular text-stone-300">
+              <label class="flex items-center gap-1.5">
+                <span class="text-stone-400">Tempo</span>
+                <input id="tpSpeedSlider" type="range" min="15" max="75" value="34" oninput="onTpSpeedChange(this.value)" class="w-20 accent-white cursor-pointer" />
+                <span id="tpSpeedLabel">130 WPM</span>
+              </label>
+              <button onclick="toggleTpAutoScroll()" id="btnTpScrollToggle" class="px-2 py-0.5 border border-white/25 hover:border-white text-white">
+                Auto-Scroll: Start
+              </button>
+              <button onclick="resetTeleprompterScroll()" class="px-2 py-0.5 border border-white/20 hover:border-white text-stone-300 hover:text-white">
+                Anfang
+              </button>
+              <button onclick="toggleTeleprompterOverlay(false)" class="text-stone-400 hover:text-white pl-1">
+                Ausblenden
+              </button>
+            </div>
+          </div>
+
+          <!-- Eye-Line Reading Guide Markers (Lesebalken at Upper Third so Presenter Looks Into Lens) -->
+          <div class="pointer-events-none absolute left-0 right-0 top-[34%] h-12 border-y border-amber-400/35 bg-white/[0.04] flex items-center justify-between px-2 z-10">
+            <span class="text-amber-400 text-xs font-mono-tabular">▶</span>
+            <span class="text-amber-400 text-xs font-mono-tabular">◀</span>
+          </div>
+
+          <!-- Scrolling Teleprompter Viewport -->
+          <div id="tpScrollViewport" class="flex-1 overflow-y-auto px-10 py-8 space-y-6 select-none">
+            <div id="tpOverlayText" class="font-editorial text-2xl sm:text-[28px] leading-[1.55] text-white space-y-7 pb-32">
+              <!-- Populated dynamically from /api/script -->
+            </div>
+          </div>
+        </div>
+
+        <!-- LOWER-THIRD STUDIO MONITOR BAR (Mic Meter + Viewfinder Controls) -->
+        <div class="absolute bottom-0 inset-x-0 bg-black/90 border-t border-white/10 px-4 py-2 flex items-center justify-between text-xs text-stone-300 z-20">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-mono-tabular uppercase tracking-wider text-stone-400">Mikrofon-Pegel</span>
+              <div class="w-36 h-1.5 bg-stone-800 overflow-hidden">
+                <div id="micLevelBar" class="h-full bg-white transition-all duration-75" style="width: 6%"></div>
+              </div>
+            </div>
+            <span id="bannerTurnBadge" class="text-[11px] font-mono-tabular text-stone-400"></span>
+          </div>
+
+          <div class="flex items-center gap-4 text-[11px]">
+            <button onclick="toggleTeleprompterOverlay(document.getElementById('teleprompterOverlay').classList.contains('hidden'))" class="text-white font-medium hover:underline">
+              Teleprompter im Monitor ein/aus
+            </button>
+            <button onclick="toggleGuides()" class="text-stone-300 hover:text-white transition">
+              Sucherlinien
+            </button>
+            <button onclick="initWebcam()" class="text-stone-300 hover:text-white transition">
+              Kamera neu verbinden
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDIO REGIE BANNER (Readable from 2m distance) -->
+      <div id="studioBanner" class="bg-white border hairline-border p-4 flex items-center justify-between gap-4">
+        <div class="flex items-start gap-3.5">
+          <span id="bannerStatusDot" class="w-2.5 h-2.5 rounded-full bg-stone-400 mt-1.5 shrink-0"></span>
+          <div>
+            <div class="flex items-center gap-2.5">
+              <span id="bannerPhaseBadge" class="text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-stone-500 font-medium">STUDIO BEREIT</span>
+              <span id="deltaBadge" class="hidden text-[11px] font-mono-tabular text-[#15803D] bg-stone-100 px-2 py-0.5"></span>
+            </div>
+            <p id="bannerText" class="font-editorial text-lg sm:text-xl text-stone-950 leading-snug mt-0.5">
+              Kamera und Mikrofon sind bereit. Prüfen Sie Bild und Ton in Schritt 02 oder starten Sie die Aufnahme mit Teleprompter in Schritt 03.
+            </p>
+          </div>
+        </div>
+
+        <!-- Auto-Loop Countdown Indicator -->
+        <div id="countdownBox" class="hidden shrink-0 border hairline-border bg-[#F6F5F0] px-3.5 py-2 text-right">
+          <div class="text-[10px] font-mono-tabular uppercase tracking-wider text-stone-500">Nächste Messung</div>
+          <div id="countdownNumber" class="text-lg font-mono-tabular font-medium text-stone-950">4s</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT 5 COLUMNS: FOCUSED WORKSTATION SHEET (TABBED BY STEP 01 / 02 / 03 / 04) -->
+    <section class="lg:col-span-5 bg-white border hairline-border">
+
+      <!-- ===================================================================== -->
+      <!-- STEP 01 PANEL: TELEPROMPTER-MANUSKRIPT (VIEW, GENERATE, EDIT & SAVE)  -->
+      <!-- ===================================================================== -->
+      <div id="panelStepScript" class="hidden p-5 space-y-5">
+        <div class="flex items-baseline justify-between border-b hairline-border pb-3">
+          <div>
+            <span class="text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-stone-400">Schritt 01 · Skill: seneca-prep-teleprompter</span>
+            <h2 class="font-editorial text-xl text-stone-950 mt-0.5">Teleprompter-Manuskript</h2>
+          </div>
+          <button onclick="toggleTeleprompterOverlay(true)" class="btn-secondary px-3 py-1.5 text-xs font-medium">
+            Im Kameramonitor einblenden
+          </button>
+        </div>
+
+        <!-- Storage Location Info Box -->
+        <div class="bg-[#FAF9F6] border hairline-border px-3.5 py-2.5 flex items-center justify-between text-xs">
+          <div>
+            <span class="text-stone-500">Gespeichertes Studio-Manuskript:</span>
+            <a href="/static/media/teleprompter_script.txt" target="_blank" class="font-mono-tabular text-[11px] text-stone-900 underline ml-1">/static/media/teleprompter_script.txt</a>
+          </div>
+          <span id="scriptStatsBadge" class="font-mono-tabular text-[11px] text-stone-600">5 Abschnitte · ca. 75s · 130 WPM</span>
+        </div>
+
+        <!-- Editable Full Teleprompter Script (What rolls on the camera monitor) -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="teleprompterFullEditor" class="text-[11px] uppercase tracking-[0.08em] text-stone-500 font-medium">
+              Aktiver Teleprompter-Sprechtext (direkt editierbar)
+            </label>
+            <button id="btnSaveTeleprompter" onclick="saveTeleprompterEdits()" class="text-xs font-medium text-stone-900 underline hover:text-stone-600">
+              Änderungen am Sprechtext speichern
+            </button>
+          </div>
+          <textarea id="teleprompterFullEditor" rows="10" class="w-full bg-[#F6F5F0] border hairline-border p-3 font-editorial text-base text-stone-900 leading-relaxed focus:outline-none focus:border-stone-900"></textarea>
+          <p class="text-[11px] text-stone-500 mt-1">
+            Hinweis: Wörter nach <code class="font-mono-tabular">[BETONUNG]</code> werden im Teleprompter hervorgehoben, <code class="font-mono-tabular">[ATEMPAUSE]</code> und <code class="font-mono-tabular">[PAUSE 0.5s]</code> erscheinen als Regie-Marken.
+          </p>
+        </div>
+
+        <!-- First Sentence for Step 02B Audio Check -->
+        <div class="border-t hairline-border pt-3.5 space-y-1.5">
+          <div class="flex items-center justify-between text-[11px] uppercase tracking-[0.06em] text-stone-500 font-medium">
+            <span>Erster Satz (wird in Schritt 2B für den 4-Sekunden-Toncheck verwendet)</span>
+          </div>
+          <blockquote id="firstSentencePreview" class="font-editorial text-sm text-stone-900 bg-[#F6F5F0] border-l-2 border-stone-900 pl-3 py-1.5">
+            «An der Ostfront bei Pokrowsk verschiebt sich die militärische Dynamik spürbar.»
+          </blockquote>
+        </div>
+
+        <!-- Optional: Generate new Teleprompter Script from raw article -->
+        <details class="border-t hairline-border pt-3">
+          <summary class="text-xs font-medium text-stone-700 cursor-pointer hover:text-stone-950">
+            Neues Teleprompter-Manuskript aus Artikel-Entwurf generieren (KI)
+          </summary>
+          <div class="mt-3 space-y-2.5">
+            <textarea id="articleInput" rows="4" class="w-full bg-[#F6F5F0] border hairline-border p-2.5 text-xs text-stone-900 leading-relaxed focus:outline-none focus:border-stone-900"></textarea>
+            <button id="btnRunScript" onclick="runScriptPrep()" class="btn-primary px-3.5 py-1.5 text-xs font-medium w-full">
+              Aus Entwurf neues 5-teiliges Teleprompter-Skript erstellen
+            </button>
+          </div>
+        </details>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- STEP 02 PANEL: KAMERA- & TON-CHECK (ACTIVE BY DEFAULT)                -->
+      <!-- ===================================================================== -->
+      <div id="panelStepPreflight" class="p-5 space-y-4">
+        <div class="flex items-baseline justify-between border-b hairline-border pb-3">
+          <div>
+            <span class="text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-stone-400">Schritt 02</span>
+            <h2 class="font-editorial text-xl text-stone-950 mt-0.5">Kamera- &amp; Ton-Vorprüfung</h2>
+          </div>
+
+          <div class="flex items-center gap-2 text-[11px] font-mono-tabular">
+            <span id="stepLoopABadge" class="px-2 py-0.5 bg-stone-900 text-white font-medium">2A Bild</span>
+            <span class="text-stone-300">/</span>
+            <span id="stepLoopBBadge" class="px-2 py-0.5 bg-stone-100 text-stone-500">2B Ton</span>
+          </div>
+        </div>
+
+        <!-- PROMINENT ACTIVE SKILL / FORMAT-REGELN BAR INSIDE STEP 02 -->
+        <div class="bg-[#FAF9F6] border hairline-border p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-mono-tabular uppercase tracking-wider px-1.5 py-0.5 bg-stone-900 text-white">SKILL.md</span>
+              <span class="text-xs font-semibold text-stone-900" id="activeSkillTitleInStep2">Aktives Regelwerk: Studio Analyse</span>
+            </div>
+            <button onclick="switchWorkspaceTab('skills')" class="text-xs font-medium text-stone-900 underline hover:text-stone-600">
+              Regelwerk bearbeiten →
+            </button>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+            <span class="text-[11px] text-stone-500 mr-1">Schnell-Regel in <code class="font-mono-tabular">SKILL.md</code> ergänzen:</span>
+            <button onclick="quickAddRuleAndSave('coffee')" class="px-2 py-0.5 bg-white border hairline-border hover:border-stone-900 text-[11px] text-stone-800 transition">
+              + Keine Kaffeetasse
+            </button>
+            <button onclick="quickAddRuleAndSave('headset')" class="px-2 py-0.5 bg-white border hairline-border hover:border-stone-900 text-[11px] text-stone-800 transition">
+              + Kein Headset/AirPods
+            </button>
+            <button onclick="quickAddRuleAndSave('smile')" class="px-2 py-0.5 bg-white border hairline-border hover:border-stone-900 text-[11px] text-stone-800 transition">
+              + Blickkontakt
+            </button>
+          </div>
+        </div>
+
+        <!-- Primary Measurement Controls -->
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btnAutoPreflight" onclick="toggleHandsFreeLoop()" class="col-span-2 btn-primary py-2.5 px-4 text-xs font-medium flex items-center justify-center gap-2">
+            Auto-Prüfung starten (4-Sekunden-Intervall)
+          </button>
+          <button id="btnSingleVisual" onclick="runSingleVisualCheck()" class="btn-secondary py-2 px-3 text-xs font-medium">
+            2A · Kamerabild jetzt prüfen
+          </button>
+          <button id="btnSingleAudio" onclick="runSingleAudioCheck(true)" class="btn-secondary py-2 px-3 text-xs font-medium">
+            2B · Ersten Satz neu einsprechen (4s)
+          </button>
+        </div>
+
+        <!-- AUDIO RECORDING LIVE PROGRESS + LATEST RECORDING PLAYBACK & HISTORY -->
+        <div id="audioTestStatusBox" class="hidden bg-[#FAF9F6] border hairline-border p-3 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span id="audioAttemptTitle" class="font-semibold text-stone-900">Tonmessung #1</span>
+            <span id="audioAttemptStats" class="font-mono-tabular text-[11px] text-stone-600"></span>
+          </div>
+          <!-- Progress bar while recording 4s -->
+          <div id="audioRecProgressWrap" class="hidden w-full h-1.5 bg-stone-200 overflow-hidden">
+            <div id="audioRecProgressBar" class="h-full bg-[#C81E1E] transition-all duration-100" style="width: 0%"></div>
+          </div>
+          <!-- Playable recording + transcript of latest attempt -->
+          <div id="audioPlaybackWrap" class="hidden space-y-1.5">
+            <div class="text-xs text-stone-700" id="audioTranscriptLine"></div>
+            <audio id="audioAttemptPlayer" controls class="w-full h-8"></audio>
+            <div id="audioHistoryList" class="text-[11px] font-mono-tabular text-stone-500 space-y-0.5 pt-1 border-t hairline-border"></div>
+          </div>
+        </div>
+
+        <!-- CHECKLIST TABLE HEADER + PROGRESS BAR + GLOBAL OVERRIDE BUTTON -->
+        <div class="pt-1 border-t hairline-border space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] uppercase tracking-[0.08em] text-stone-500 font-medium">Prüfergebnis (<code class="font-mono-tabular">SKILL.md</code>)</span>
+              <span id="checksProgressBadge" class="hidden px-2 py-0.5 text-[11px] font-mono-tabular font-semibold bg-stone-100 text-stone-600">0 / 0 gelöst</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <button id="btnOverrideAllBanner" onclick="overrideAllOpenChecks()" class="hidden text-xs font-medium text-[#B45309] hover:text-stone-950 underline">
+                Alle offenen Punkte übersteuern &amp; weiter →
+              </button>
+              <button onclick="resetPreflightTurns()" class="text-[11px] text-stone-400 hover:text-stone-900">
+                Zähler zurücksetzen
+              </button>
+            </div>
+          </div>
+
+          <!-- Visual Progress Bar for Resolved Checks -->
+          <div id="checksProgressBarWrap" class="hidden w-full h-1.5 bg-stone-200 overflow-hidden">
+            <div id="checksProgressBarFill" class="h-full bg-[#15803D] transition-all duration-500" style="width: 0%"></div>
+          </div>
+
+          <!-- DYNAMIC CHECK ROWS -->
+          <div id="checksGrid" class="divide-y hairline-border border-y hairline-border bg-[#FAF9F6]">
+            <div class="p-4 text-xs text-stone-500 flex items-center justify-between">
+              <span>Starten Sie oben die Auto-Prüfung oder eine Einzelmessung für Bild (2A) oder Ton (2B).</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Direct Skip / Continue Footer -->
+        <div class="pt-1 flex items-center justify-between text-xs text-stone-500">
+          <span>Jeder Prüfpunkt kann einzeln übersteuert werden.</span>
+          <button onclick="overrideAllOpenChecks(); switchWorkspaceTab('record');" class="text-stone-900 font-medium hover:underline">
+            Weiter zur Studio-Aufnahme (Schritt 03) →
+          </button>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- STEP 03 PANEL: STUDIO-AUFNAHME MIT INTEGRIERTEM TELEPROMPTER          -->
+      <!-- ===================================================================== -->
+      <div id="panelStepRecord" class="hidden p-5 space-y-5">
+        <div class="flex items-baseline justify-between border-b hairline-border pb-3">
+          <div>
+            <span class="text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-stone-400">Schritt 03 · Skill: seneca-auto-cut-master</span>
+            <h2 class="font-editorial text-xl text-stone-950 mt-0.5">Studio-Aufnahme &amp; Rohschnitt</h2>
+          </div>
+          <span class="text-[11px] font-mono-tabular text-stone-500">Zielpegel -16.0 LUFS</span>
+        </div>
+
+        <!-- Integrated Teleprompter Control & Preview Card -->
+        <div class="bg-[#FAF9F6] border hairline-border p-3.5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-semibold text-stone-950">Integrierter Kamera-Teleprompter</span>
+              <p class="text-[11px] text-stone-500">Läuft während der Aufnahme automatisch im oberen Drittel des Kameramonitors mit.</p>
+            </div>
+            <button onclick="switchWorkspaceTab('script')" class="text-xs text-stone-900 underline shrink-0">
+              Text bearbeiten
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 pt-1 border-t hairline-border text-xs">
+            <label class="flex items-center gap-2">
+              <span class="text-stone-600">Scroll-Tempo:</span>
+              <input id="tpSpeedSliderPanel" type="range" min="15" max="75" value="34" oninput="onTpSpeedChange(this.value)" class="w-28 accent-stone-900 cursor-pointer" />
+              <span id="tpSpeedLabelPanel" class="font-mono-tabular text-[11px] text-stone-800">130 WPM</span>
+            </label>
+            <button onclick="resetTeleprompterScroll()" class="btn-secondary px-2.5 py-1 text-[11px]">
+              Prompter an den Anfang
+            </button>
+          </div>
+        </div>
+
+        <!-- SINGLE PRIMARY ACTION: RECORD WITH LIVE WEBCAM & TELEPROMPTER -->
+        <div>
+          <button id="btnRecordTake" onclick="toggleWebcamRecording()" class="w-full py-3 px-4 bg-[#C81E1E] hover:bg-red-800 text-white text-sm font-medium transition flex items-center justify-center gap-2">
+            Aufnahme mit Teleprompter starten
+          </button>
+          <p class="text-[11px] text-stone-500 mt-1.5">
+            Nach dem Beenden der Aufnahme entfernt der Schnitt-Agent Versprecher und Sprechpausen gemäss <code class="font-mono-tabular">seneca-auto-cut-master/SKILL.md</code> und normiert den Ton auf -16.0 LUFS.
+          </p>
+        </div>
+
+        <!-- EDL & Rendered Masters (Shown after recording completes) -->
+        <div id="postprodResultBox" class="hidden border-t hairline-border pt-4 space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[11px] uppercase tracking-[0.08em] text-stone-500 font-medium">Schnittprotokoll (Edit Decision List)</span>
+              <span id="edlSummaryBadge" class="text-[11px] font-mono-tabular text-stone-700"></span>
+            </div>
+            <p id="edlSummaryText" class="text-xs text-stone-700 mb-2.5"></p>
+            <div id="edlSegmentsList" class="divide-y hairline-border border hairline-border bg-[#FAF9F6] max-h-36 overflow-y-auto text-[11px] font-mono-tabular"></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <div class="border hairline-border bg-[#FAF9F6] p-2.5 space-y-1.5">
+              <div class="text-[11px] font-mono-tabular text-stone-600 flex justify-between">
+                <span>16:9 Sendemaster</span>
+                <span>-16 LUFS</span>
+              </div>
+              <video id="videoMaster16x9" controls class="w-full bg-black aspect-video"></video>
+              <a id="downloadMaster16x9" href="/static/media/master_16x9.mp4" download="seneca_master_16x9.mp4" class="block text-center text-[11px] text-stone-700 hover:text-stone-950 underline pt-0.5">
+                16:9 Master herunterladen (.mp4)
+              </a>
+            </div>
+            <div class="border hairline-border bg-[#FAF9F6] p-2.5 space-y-1.5">
+              <div class="text-[11px] font-mono-tabular text-stone-600 flex justify-between">
+                <span>9:16 Vertikalformat</span>
+                <span>540×960</span>
+              </div>
+              <video id="videoReel9x16" controls class="w-full h-36 object-contain bg-black"></video>
+              <a id="downloadReel9x16" href="/static/media/reel_9x16.mp4" download="seneca_reel_9x16.mp4" class="block text-center text-[11px] text-stone-700 hover:text-stone-950 underline pt-0.5">
+                9:16 Vertikal herunterladen (.mp4)
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- STEP 04 PANEL: FORMAT-REGELN & SKILLS (PROMINENT FULL PANEL)          -->
+      <!-- ===================================================================== -->
+      <div id="panelStepSkills" class="hidden p-5 space-y-4">
+        <div class="flex items-baseline justify-between border-b hairline-border pb-3">
+          <div>
+            <span class="text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-stone-400">GCP Skill Registry (europe-west4)</span>
+            <h2 class="font-editorial text-xl text-stone-950 mt-0.5">Format-Regeln &amp; Skills (<code class="font-mono-tabular text-base">SKILL.md</code>)</h2>
+          </div>
+          <span class="text-xs font-medium text-[#15803D]" id="skillSaveStatus"></span>
+        </div>
+
+        <p class="text-xs text-stone-600 leading-relaxed">
+          Alle Prüfregeln für Kamerabild, Ausleuchtung, Mikrofonpegel, Sprechtempo, Teleprompter-Formatierung und Rohschnitt sind ausschliesslich in diesen <code class="font-mono-tabular">SKILL.md</code>-Dateien hinterlegt.
+        </p>
+
+        <div class="space-y-2.5">
+          <label for="drawerSkillSelect" class="block text-[11px] uppercase tracking-[0.08em] text-stone-500 font-medium">
+            Skill aus der Registry auswählen
+          </label>
+          <select id="drawerSkillSelect" onchange="onDrawerSkillSelect()" class="w-full bg-[#F6F5F0] border hairline-border px-3 py-2 text-xs font-mono-tabular text-stone-900">
+          </select>
+
+          <div class="flex flex-wrap items-center gap-1.5 pt-1">
+            <span class="text-[11px] text-stone-500">Test-Regel einfügen:</span>
+            <button onclick="injectSampleRule('coffee')" class="btn-secondary px-2 py-1 text-[11px]">
+              + Keine Kaffeetasse
+            </button>
+            <button onclick="injectSampleRule('headset')" class="btn-secondary px-2 py-1 text-[11px]">
+              + Kein Headset/AirPods
+            </button>
+            <button onclick="injectSampleRule('smile')" class="btn-secondary px-2 py-1 text-[11px]">
+              + Blickkontakt
+            </button>
+          </div>
+        </div>
+
+        <textarea id="skillMarkdownEditor" rows="14" class="w-full bg-[#F6F5F0] border hairline-border p-3.5 font-mono-tabular text-xs text-stone-900 leading-relaxed focus:outline-none focus:border-stone-900"></textarea>
+
+        <div class="flex items-center justify-between pt-2 border-t hairline-border">
+          <span class="text-[11px] font-mono-tabular text-stone-400 truncate max-w-[220px]" id="drawerSkillResourceName"></span>
+          <button onclick="saveSkillToRegistry()" id="btnSaveSkill" class="btn-primary px-4 py-2 text-xs font-medium">
+            In Skill Registry speichern &amp; aktivieren
+          </button>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- MODAL: AGENT PROTOKOLL & SANDBOX -->
+  <div id="sandboxModalBackdrop" class="hidden fixed inset-0 bg-black/40 z-40 flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-white border hairline-border p-6 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between border-b hairline-border pb-3">
+        <div>
+          <span class="text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-stone-400">Agent-Laufzeitumgebung</span>
+          <h3 class="font-editorial text-xl text-stone-950 mt-0.5">Sandbox-Konsole (<code class="font-mono-tabular text-sm">seneca-studio-agent</code>)</h3>
+        </div>
+        <button onclick="toggleSandboxModal(false)" class="btn-secondary px-2.5 py-1 text-xs">Schliessen</button>
+      </div>
+
+      <textarea id="sandboxPromptInput" rows="3" class="w-full bg-[#F6F5F0] border hairline-border p-3 text-xs font-mono-tabular text-stone-900">List all Seneca skills mounted in your sandbox under .agent/skills, read seneca-show-aktuell/SKILL.md, and return a brief summary of the pre-flight rules.</textarea>
+
+      <div class="flex items-center justify-between">
+        <div class="text-xs font-mono-tabular text-stone-500">
+          Umgebung: <span id="sandboxEnvId" class="text-stone-900">Bereit</span>
+        </div>
+        <button id="btnRunSandbox" onclick="runManagedAgentInteraction()" class="btn-primary px-4 py-2 text-xs font-medium">
+          Anfrage ausführen
+        </button>
+      </div>
+
+      <pre id="sandboxOutputPre" class="bg-[#F6F5F0] border hairline-border p-3.5 text-xs font-mono-tabular text-stone-800 max-h-60 overflow-y-auto whitespace-pre-wrap">Bereit.</pre>
+    </div>
+  </div>
+
+  <script>
+    let voiceCoachEnabled = true;
+    let selectedVoiceName = 'de-DE-Chirp3-HD-Aoede';
+    let webcamStream = null;
+    let audioContext = null;
+    let analyserNode = null;
+    let skillsCache = [];
+    let currentTurnVisual = 1;
+    let currentTurnAudio = 1;
+    let currentLoopStage = 'visual';
+    let handsFreeTimer = null;
+    let countdownRemaining = 0;
+    let isCheckingInFlight = false;
+
+    // Teleprompter state
+    let currentScriptData = null;
+    let firstSentenceText = 'An der Ostfront bei Pokrowsk verschiebt sich die militärische Dynamik spürbar.';
+    let firstSentenceWords = 11;
+    let tpScrollInterval = null;
+    let tpPixelsPerSec = 34; // ~130 WPM
+
+    // Recording state
+    let mediaRecorderTake = null;
+    let recordedChunksTake = [];
+    let recTimerInterval = null;
+    let recSeconds = 0;
+
+    // Override sets
+    let ignoredVisualChecks = new Set();
+    let ignoredAudioChecks = new Set();
+    let lastChecksList = [];
+    let lastDeltaNote = '';
+    let lastChecksStage = 'visual';
+
+    async function initApp() {
+      await Promise.all([
+        loadSkillsFromRegistry(),
+        loadTeleprompterScript()
+      ]);
+      await initWebcam();
+    }
+
+    function switchWorkspaceTab(tab) {
+      const panels = {
+        script: document.getElementById('panelStepScript'),
+        preflight: document.getElementById('panelStepPreflight'),
+        record: document.getElementById('panelStepRecord'),
+        skills: document.getElementById('panelStepSkills')
+      };
+      const tabs = {
+        script: document.getElementById('tabStep1'),
+        preflight: document.getElementById('tabStep2'),
+        record: document.getElementById('tabStep3'),
+        skills: document.getElementById('tabStep4')
+      };
+      Object.keys(panels).forEach(k => {
+        if (k === tab) {
+          panels[k].classList.remove('hidden');
+          tabs[k].classList.add('active');
+        } else {
+          panels[k].classList.add('hidden');
+          tabs[k].classList.remove('active');
+        }
+      });
+
+      // Automatically show integrated Teleprompter on monitor when entering Step 03 (Studio-Aufnahme)
+      if (tab === 'record') {
+        document.getElementById('audioTestPromptOverlay').classList.add('hidden');
+        renderTeleprompterMonitorHtml();
+        toggleTeleprompterOverlay(true);
+      }
+    }
+
+    async function loadTeleprompterScript() {
+      const showId = document.getElementById('showSelect').value;
+      try {
+        const resp = await fetch('/api/script?show_id=' + encodeURIComponent(showId));
+        const data = await resp.json();
+        applyScriptDataToUI(data);
+      } catch (e) {}
+    }
+
+    function formatPrompterSpokenHtml(rawText) {
+      if (!rawText) return '';
+      return rawText
+        .replace(/\[BETONUNG\]\s*(\S+)/g, '<span class="underline decoration-amber-400 decoration-2 font-semibold text-amber-200">$1</span>')
+        .replace(/\[(ATEMPAUSE|PAUSE[^\]]*)\]/g, '<span class="inline-block font-mono-tabular text-xs uppercase tracking-wider px-1.5 py-0.5 mx-1 bg-white/15 text-amber-300 align-middle">$1</span>');
+    }
+
+    function applyScriptDataToUI(data) {
+      currentScriptData = data;
+      firstSentenceText = data.first_sentence_plain || firstSentenceText;
+      firstSentenceWords = data.first_sentence_word_count || firstSentenceText.split(/\s+/).length;
+
+      document.getElementById('firstSentencePreview').textContent = '«' + firstSentenceText + '»';
+      document.getElementById('audioTestSentenceDisplay').textContent = '«' + firstSentenceText + '»';
+
+      if (data.article_text) {
+        document.getElementById('articleInput').value = data.article_text;
+      }
+
+      const segs = data.segments || [];
+      const totalWords = segs.reduce((acc, s) => acc + (s.spoken_text || '').split(/\s+/).length, 0);
+      document.getElementById('scriptStatsBadge').textContent =
+        `${segs.length} Abschnitte · ${totalWords} Wörter · ca. ${data.estimated_duration_sec || 70}s (${data.target_wpm || 130} WPM)`;
+
+      // Populate editable full teleprompter textarea in Step 01
+      const editorLines = segs.map(s => `[${s.section}]\n${s.spoken_text}`).join('\n\n');
+      document.getElementById('teleprompterFullEditor').value = editorLines;
+
+      renderTeleprompterMonitorHtml();
+    }
+
+    function renderTeleprompterMonitorHtml() {
+      if (!currentScriptData || !currentScriptData.segments) return;
+      const html = currentScriptData.segments.map(s => `
+        <div class="space-y-1.5">
+          <div class="text-[11px] font-mono-tabular uppercase tracking-[0.12em] text-amber-300/90">${s.section}</div>
+          <p class="leading-[1.55]">${formatPrompterSpokenHtml(s.spoken_text)}</p>
+        </div>
+      `).join('');
+      document.getElementById('tpOverlayText').innerHTML = html;
+    }
+
+    async function saveTeleprompterEdits() {
+      const showId = document.getElementById('showSelect').value;
+      const raw = document.getElementById('teleprompterFullEditor').value.trim();
+      const blocks = raw.split(/\n\s*\n/);
+      const segments = blocks.map((b, idx) => {
+        const lines = b.trim().split('\n');
+        let section = `0${idx + 1} ABSCHNITT`;
+        let spoken = b.trim();
+        if (lines[0].startsWith('[') && lines[0].endsWith(']')) {
+          section = lines[0].slice(1, -1).trim();
+          spoken = lines.slice(1).join(' ').trim();
+        }
+        return { index: idx + 1, section, spoken_text: spoken, duration_sec: 15 };
+      }).filter(s => s.spoken_text);
+
+      const btn = document.getElementById('btnSaveTeleprompter');
+      btn.textContent = 'Speichert…';
+      try {
+        const resp = await fetch('/api/script-save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ show_id: showId, segments })
+        });
+        const data = await resp.json();
+        applyScriptDataToUI(data);
+        btn.textContent = 'Gespeichert ✓';
+        setTimeout(() => { btn.textContent = 'Änderungen am Sprechtext speichern'; }, 2000);
+        setBanner('PASS', 'TELEPROMPTER GESPEICHERT', 'Sprechtext wurde aktualisiert und im Kamera-Teleprompter hinterlegt.');
+      } catch (e) {
+        btn.textContent = 'Änderungen am Sprechtext speichern';
+      }
+    }
+
+    function onTpSpeedChange(val) {
+      tpPixelsPerSec = Number(val);
+      const approxWpm = Math.round(90 + (tpPixelsPerSec - 15) * 1.8);
+      document.getElementById('tpSpeedSlider').value = val;
+      document.getElementById('tpSpeedSliderPanel').value = val;
+      document.getElementById('tpSpeedLabel').textContent = `${approxWpm} WPM`;
+      document.getElementById('tpSpeedLabelPanel').textContent = `${approxWpm} WPM`;
+    }
+
+    function startTeleprompterAutoScroll() {
+      stopTeleprompterAutoScroll();
+      const vp = document.getElementById('tpScrollViewport');
+      const btn = document.getElementById('btnTpScrollToggle');
+      if (btn) btn.textContent = 'Auto-Scroll: Pause';
+      tpScrollInterval = setInterval(() => {
+        if (!vp) return;
+        vp.scrollTop += (tpPixelsPerSec / 20);
+        if (vp.scrollTop + vp.clientHeight >= vp.scrollHeight - 4) {
+          stopTeleprompterAutoScroll();
+        }
+      }, 50);
+    }
+
+    function stopTeleprompterAutoScroll() {
+      if (tpScrollInterval) {
+        clearInterval(tpScrollInterval);
+        tpScrollInterval = null;
+      }
+      const btn = document.getElementById('btnTpScrollToggle');
+      if (btn) btn.textContent = 'Auto-Scroll: Start';
+    }
+
+    function toggleTpAutoScroll() {
+      if (tpScrollInterval) stopTeleprompterAutoScroll();
+      else startTeleprompterAutoScroll();
+    }
+
+    function resetTeleprompterScroll() {
+      const vp = document.getElementById('tpScrollViewport');
+      if (vp) vp.scrollTop = 0;
+    }
+
+    async function initWebcam() {
+      const videoEl = document.getElementById('webcamVideo');
+      const statusEl = document.getElementById('camStatusText');
+      try {
+        if (webcamStream) {
+          webcamStream.getTracks().forEach(t => t.stop());
+        }
+        webcamStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+          audio: true
+        });
+        videoEl.srcObject = webcamStream;
+        statusEl.textContent = 'Live-Kamera & Mikrofon verbunden';
+        setupMicMeter(webcamStream);
+      } catch (err) {
+        statusEl.textContent = 'Kein Kamerazugriff (' + err.message + ')';
+        setBanner('WARN', 'KAMERA-FREIGABE', 'Bitte erlauben Sie im Browser den Zugriff auf Kamera und Mikrofon.');
+      }
+    }
+
+    function setupMicMeter(stream) {
+      try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaStreamSource(stream);
+        analyserNode = audioContext.createAnalyser();
+        analyserNode.fftSize = 256;
+        source.connect(analyserNode);
+        const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+        const bar = document.getElementById('micLevelBar');
+        function tick() {
+          if (!analyserNode) return;
+          analyserNode.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+          const avg = sum / dataArray.length;
+          const pct = Math.min(100, Math.max(4, Math.round((avg / 90) * 100)));
+          bar.style.width = pct + '%';
+          bar.className = 'h-full transition-all duration-75 ' + (pct > 85 ? 'bg-[#C81E1E]' : 'bg-white');
+          requestAnimationFrame(tick);
+        }
+        tick();
+      } catch (e) {}
+    }
+
+    function toggleGuides() {
+      document.getElementById('framingGuides').classList.toggle('hidden');
+    }
+
+    function toggleTeleprompterOverlay(show) {
+      const el = document.getElementById('teleprompterOverlay');
+      if (show) {
+        renderTeleprompterMonitorHtml();
+        el.classList.remove('hidden');
+      } else {
+        stopTeleprompterAutoScroll();
+        el.classList.add('hidden');
+      }
+    }
+
+    function onVoiceSelectChange() {
+      const val = document.getElementById('voiceSelect').value;
+      if (val === 'OFF') {
+        voiceCoachEnabled = false;
+        const player = document.getElementById('coachAudioPlayer');
+        if (player) player.pause();
+      } else {
+        voiceCoachEnabled = true;
+        selectedVoiceName = val;
+      }
+    }
+
+    function stopCoachAudio() {
+      const player = document.getElementById('coachAudioPlayer');
+      if (player) {
+        player.pause();
+        player.currentTime = 0;
+      }
+    }
+
+    async function playCoachAudio(ttsAudioB64, fallbackText = '') {
+      if (!voiceCoachEnabled) return;
+      const player = document.getElementById('coachAudioPlayer');
+      try {
+        let b64 = ttsAudioB64;
+        if (!b64 && fallbackText) {
+          const resp = await fetch('/api/tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: fallbackText, voice_name: selectedVoiceName })
+          });
+          const data = await resp.json();
+          b64 = data.tts_audio_b64;
+        }
+        if (!b64) return;
+        return await new Promise((resolve) => {
+          player.pause();
+          player.src = 'data:audio/mp3;base64,' + b64;
+          player.onended = () => resolve();
+          player.onerror = () => resolve();
+          const playPromise = player.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => resolve());
+          }
+        });
+      } catch (e) {}
+    }
+
+    async function testStudioVoice() {
+      if (!voiceCoachEnabled) {
+        document.getElementById('voiceSelect').value = 'de-DE-Chirp3-HD-Aoede';
+        onVoiceSelectChange();
+      }
+      await playCoachAudio(
+        null,
+        'Guten Tag im Seneca Studio. Kamera, Teleprompter und Mikrofon sind bereit.'
+      );
+    }
+
+    function captureWebcamBase64() {
+      if (!webcamStream) return null;
+      const video = document.getElementById('webcamVideo');
+      if (!video.videoWidth) return null;
+      const canvas = document.getElementById('captureCanvas');
+      canvas.width = 960;
+      canvas.height = 540;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL('image/jpeg', 0.85);
+    }
+
+    function recordMicSnippetWithCountdown(durationMs = 4200) {
+      return new Promise((resolve) => {
+        if (!webcamStream) {
+          resolve(null);
+          return;
+        }
+        try {
+          const audioTracks = webcamStream.getAudioTracks();
+          if (!audioTracks.length) {
+            resolve(null);
+            return;
+          }
+          const audioStream = new MediaStream(audioTracks);
+          const rec = new MediaRecorder(audioStream);
+          const chunks = [];
+          rec.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+
+          const progWrap = document.getElementById('audioRecProgressWrap');
+          const progBar = document.getElementById('audioRecProgressBar');
+          const badge = document.getElementById('audioRecCountdownBadge');
+          progWrap.classList.remove('hidden');
+          progBar.style.width = '0%';
+
+          const startTs = Date.now();
+          const timer = setInterval(() => {
+            const elapsed = Date.now() - startTs;
+            const pct = Math.min(100, Math.round((elapsed / durationMs) * 100));
+            const rem = Math.max(0, ((durationMs - elapsed) / 1000)).toFixed(1);
+            progBar.style.width = pct + '%';
+            badge.textContent = `Aufnahme läuft: noch ${rem}s`;
+          }, 100);
+
+          rec.onstop = () => {
+            clearInterval(timer);
+            progWrap.classList.add('hidden');
+            badge.textContent = 'Wird ausgewertet…';
+            const blob = new Blob(chunks, { type: 'audio/webm' });
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          };
+          rec.start();
+          setTimeout(() => { if (rec.state !== 'inactive') rec.stop(); }, durationMs);
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }
+
+    function setBanner(status, phaseLabel, text, turnText = '') {
+      const bannerEl = document.getElementById('studioBanner');
+      const dot = document.getElementById('bannerStatusDot');
+      const navDot = document.getElementById('navPreflightDot');
+      const phase = document.getElementById('bannerPhaseBadge');
+      const turn = document.getElementById('bannerTurnBadge');
+      const txt = document.getElementById('bannerText');
+      turn.textContent = turnText;
+      txt.textContent = text;
+      if (status === 'PASS') {
+        bannerEl.className = 'bg-[#F0FDF4] border border-[#15803D] border-l-4 border-l-[#15803D] p-4 flex items-center justify-between gap-4 transition-all duration-300';
+        dot.className = 'w-6 h-6 rounded-full bg-[#15803D] text-white inline-flex items-center justify-center text-xs font-bold mt-0.5 shrink-0';
+        dot.textContent = '✓';
+        phase.className = 'text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-[#15803D] font-bold';
+        phase.textContent = '✓ ' + phaseLabel;
+        navDot.className = 'w-2 h-2 rounded-full bg-[#15803D]';
+      } else if (status === 'WARN') {
+        bannerEl.className = 'bg-white border hairline-border border-l-4 border-l-[#B45309] p-4 flex items-center justify-between gap-4 transition-all duration-300';
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-[#B45309] mt-1.5 shrink-0';
+        dot.textContent = '';
+        phase.className = 'text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-[#B45309] font-medium';
+        phase.textContent = phaseLabel;
+        navDot.className = 'w-1.5 h-1.5 rounded-full bg-[#B45309]';
+      } else if (status === 'FAIL') {
+        bannerEl.className = 'bg-white border hairline-border border-l-4 border-l-[#C81E1E] p-4 flex items-center justify-between gap-4 transition-all duration-300';
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-[#C81E1E] mt-1.5 shrink-0';
+        dot.textContent = '';
+        phase.className = 'text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-[#C81E1E] font-medium';
+        phase.textContent = phaseLabel;
+        navDot.className = 'w-1.5 h-1.5 rounded-full bg-[#C81E1E]';
+      } else {
+        bannerEl.className = 'bg-white border hairline-border p-4 flex items-center justify-between gap-4 transition-all duration-300';
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-stone-900 mt-1.5 shrink-0 animate-pulse';
+        dot.textContent = '';
+        phase.className = 'text-[11px] font-mono-tabular uppercase tracking-[0.08em] text-stone-500 font-medium';
+        phase.textContent = phaseLabel;
+      }
+    }
+
+    let prevCheckStatusByStage = { visual: {}, audio: {} };
+
+    function renderCheckCards(checks, deltaNote = '', stage = lastChecksStage) {
+      lastChecksStage = stage;
+      lastChecksList = checks || [];
+      lastDeltaNote = deltaNote || '';
+
+      const ignoredSet = stage === 'visual' ? ignoredVisualChecks : ignoredAudioChecks;
+      const prevMap = prevCheckStatusByStage[stage] || {};
+      const grid = document.getElementById('checksGrid');
+      const deltaBadge = document.getElementById('deltaBadge');
+      const btnOverrideAll = document.getElementById('btnOverrideAllBanner');
+      const progBadge = document.getElementById('checksProgressBadge');
+      const progWrap = document.getElementById('checksProgressBarWrap');
+      const progFill = document.getElementById('checksProgressBarFill');
+
+      if (deltaNote) {
+        deltaBadge.textContent = '✓ ' + deltaNote;
+        deltaBadge.className = 'text-[11px] font-mono-tabular font-semibold text-[#15803D] bg-[#DCFCE7] px-2 py-0.5';
+        deltaBadge.classList.remove('hidden');
+      } else {
+        deltaBadge.classList.add('hidden');
+      }
+
+      let openIssuesCount = 0;
+      let resolvedCount = 0;
+      const totalCount = lastChecksList.length;
+
+      grid.innerHTML = lastChecksList.map(c => {
+        const rawSt = (c.original_status || c.status || 'WARN').toUpperCase();
+        const isOverridden = ignoredSet.has(c.id) || (c.status || '').toUpperCase() === 'OVERRIDE';
+        const st = isOverridden && rawSt !== 'PASS' ? 'OVERRIDE' : rawSt;
+        const prevSt = prevMap[c.id];
+        const newlySolved = (st === 'PASS' || st === 'OVERRIDE') && prevSt && (prevSt === 'WARN' || prevSt === 'FAIL');
+        prevMap[c.id] = st;
+
+        if (st === 'FAIL' || st === 'WARN') {
+          openIssuesCount++;
+        } else {
+          resolvedCount++;
+        }
+
+        const isResolved = (st === 'PASS' || st === 'OVERRIDE');
+
+        // Visual Reward Styling for resolved checks vs open issues
+        const rowClass = st === 'PASS'
+          ? 'p-3.5 bg-[#F0FDF4] border-l-4 border-l-[#15803D] flex items-start justify-between gap-4 transition-all duration-300'
+          : st === 'OVERRIDE'
+            ? 'p-3.5 bg-[#F4FBF7] border-l-4 border-l-[#15803D]/70 flex items-start justify-between gap-4 transition-all duration-300'
+            : st === 'WARN'
+              ? 'p-3.5 bg-[#FFFBEB]/60 border-l-4 border-l-[#B45309] flex items-start justify-between gap-4 transition-all duration-300'
+              : 'p-3.5 bg-[#FEF2F2]/60 border-l-4 border-l-[#C81E1E] flex items-start justify-between gap-4 transition-all duration-300';
+
+        const checkIconHtml = isResolved
+          ? '<span class="w-5 h-5 rounded-full bg-[#15803D] text-white inline-flex items-center justify-center text-xs font-bold shrink-0 shadow-sm">✓</span>'
+          : st === 'WARN'
+            ? '<span class="w-5 h-5 rounded-full bg-[#B45309] text-white inline-flex items-center justify-center text-xs font-bold shrink-0">!</span>'
+            : '<span class="w-5 h-5 rounded-full bg-[#C81E1E] text-white inline-flex items-center justify-center text-xs font-bold shrink-0">✕</span>';
+
+        const statusBadge = st === 'PASS'
+          ? `<span class="px-2 py-0.5 bg-[#DCFCE7] font-mono-tabular text-[11px] font-semibold text-[#15803D]">${newlySolved ? '✓ NEU GELÖST' : '✓ GELÖST'}</span>`
+          : st === 'OVERRIDE'
+            ? '<span class="px-2 py-0.5 bg-[#DCFCE7]/80 font-mono-tabular text-[11px] font-semibold text-[#15803D]">✓ ÜBERSTEUERT</span>'
+            : st === 'WARN'
+              ? '<span class="px-2 py-0.5 bg-amber-100 font-mono-tabular text-[11px] font-semibold text-[#B45309]">HINWEIS</span>'
+              : '<span class="px-2 py-0.5 bg-red-100 font-mono-tabular text-[11px] font-semibold text-[#C81E1E]">KORREKTUR</span>';
+
+        let actionBtnHtml = '';
+        if (rawSt !== 'PASS') {
+          if (isOverridden) {
+            actionBtnHtml = `
+              <button onclick="toggleCheckOverride('${c.id}')" class="text-[11px] text-stone-500 hover:text-stone-900 underline shrink-0">
+                Wieder prüfen
+              </button>
+            `;
+          } else {
+            actionBtnHtml = `
+              <button onclick="toggleCheckOverride('${c.id}')" class="px-2.5 py-1 bg-white border hairline-border hover:border-stone-900 text-[11px] font-medium text-stone-900 transition shrink-0">
+                Übersteuern
+              </button>
+            `;
+          }
+        }
+
+        return `
+          <div class="${rowClass}">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="pt-0.5">${checkIconHtml}</div>
+              <div class="space-y-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs font-semibold ${isResolved ? 'text-[#14532D]' : 'text-stone-950'}">${c.label || c.id}</span>
+                  ${statusBadge}
+                  <span class="text-[11px] font-mono-tabular ${isResolved ? 'text-[#15803D] font-medium' : 'text-stone-500'} truncate">${c.measured || ''}</span>
+                </div>
+                <p class="text-xs ${isOverridden ? 'text-stone-500 line-through' : isResolved ? 'text-[#166534] font-medium' : 'text-stone-800'} leading-relaxed">
+                  ${c.correction || ''}
+                </p>
+                <div class="text-[11px] text-stone-400">Vorgabe (SKILL.md): ${c.rule_from_skill || ''}</div>
+              </div>
+            </div>
+            <div class="pt-0.5">
+              ${actionBtnHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      prevCheckStatusByStage[stage] = prevMap;
+
+      // Update Progress Bar & Resolved Counter Badge
+      if (totalCount > 0) {
+        const pct = Math.round((resolvedCount / totalCount) * 100);
+        progWrap.classList.remove('hidden');
+        progFill.style.width = pct + '%';
+        progBadge.classList.remove('hidden');
+        if (resolvedCount === totalCount) {
+          progBadge.textContent = `✓ Alle ${totalCount} / ${totalCount} Prüfpunkte gelöst`;
+          progBadge.className = 'px-2 py-0.5 text-[11px] font-mono-tabular font-semibold bg-[#15803D] text-white transition-all';
+        } else {
+          progBadge.textContent = `${resolvedCount} / ${totalCount} gelöst`;
+          progBadge.className = 'px-2 py-0.5 text-[11px] font-mono-tabular font-semibold bg-[#DCFCE7] text-[#15803D] transition-all';
+        }
+      }
+
+      // Also update 2A / 2B top stage badges with green checkmark when all checks in that stage are resolved
+      if (totalCount > 0 && openIssuesCount === 0) {
+        if (stage === 'visual') {
+          const bA = document.getElementById('stepLoopABadge');
+          bA.className = 'px-2.5 py-0.5 bg-[#15803D] text-white font-semibold transition-all';
+          bA.textContent = '✓ 2A Bild gelöst';
+        } else {
+          const bB = document.getElementById('stepLoopBBadge');
+          bB.className = 'px-2.5 py-0.5 bg-[#15803D] text-white font-semibold transition-all';
+          bB.textContent = '✓ 2B Ton gelöst';
+        }
+      }
+
+      if (openIssuesCount > 0) {
+        btnOverrideAll.classList.remove('hidden');
+        btnOverrideAll.textContent = stage === 'visual'
+          ? `Alle ${openIssuesCount} übersteuern & zu 2B Ton →`
+          : `Alle ${openIssuesCount} übersteuern & zur Aufnahme →`;
+      } else {
+        btnOverrideAll.classList.add('hidden');
+      }
+    }
+
+    async function toggleCheckOverride(checkId) {
+      const ignoredSet = lastChecksStage === 'visual' ? ignoredVisualChecks : ignoredAudioChecks;
+      if (ignoredSet.has(checkId)) {
+        ignoredSet.delete(checkId);
+      } else {
+        ignoredSet.add(checkId);
+      }
+      renderCheckCards(lastChecksList, lastDeltaNote, lastChecksStage);
+      await evaluateStageAfterOverride();
+    }
+
+    async function overrideAllOpenChecks() {
+      const ignoredSet = lastChecksStage === 'visual' ? ignoredVisualChecks : ignoredAudioChecks;
+      if (lastChecksList.length > 0) {
+        lastChecksList.forEach(c => {
+          const rawSt = (c.original_status || c.status || 'WARN').toUpperCase();
+          if (rawSt !== 'PASS') ignoredSet.add(c.id);
+        });
+        renderCheckCards(lastChecksList, lastDeltaNote, lastChecksStage);
+      }
+      await evaluateStageAfterOverride(true);
+    }
+
+    async function evaluateStageAfterOverride(forceAdvance = false) {
+      const ignoredSet = lastChecksStage === 'visual' ? ignoredVisualChecks : ignoredAudioChecks;
+      const remainingOpen = lastChecksList.filter(c => {
+        const rawSt = (c.original_status || c.status || 'WARN').toUpperCase();
+        return rawSt !== 'PASS' && !ignoredSet.has(c.id);
+      });
+
+      if (remainingOpen.length === 0 || forceAdvance) {
+        if (lastChecksStage === 'visual') {
+          currentLoopStage = 'audio';
+          const bA = document.getElementById('stepLoopABadge');
+          bA.className = 'px-2.5 py-0.5 bg-[#15803D] text-white font-semibold transition-all';
+          bA.textContent = '✓ 2A Bild gelöst';
+          const bB = document.getElementById('stepLoopBBadge');
+          bB.className = 'px-2 py-0.5 bg-stone-900 text-white font-medium';
+          bB.textContent = '2B Ton';
+          const msg = 'Kamerabild freigegeben. Weiter mit Schritt 2B: Bitte sprechen Sie den ersten Satz für die Tonprüfung ein.';
+          setBanner('PASS', '2A BILD FREIGEGEBEN', msg);
+          await playCoachAudio(null, msg);
+          if (handsFreeTimer) {
+            scheduleNextTick(2);
+          }
+        } else {
+          currentLoopStage = 'done';
+          stopHandsFreeLoop();
+          document.getElementById('audioTestPromptOverlay').classList.add('hidden');
+          const bB = document.getElementById('stepLoopBBadge');
+          bB.className = 'px-2.5 py-0.5 bg-[#15803D] text-white font-semibold transition-all';
+          bB.textContent = '✓ 2B Ton gelöst';
+          const msg = 'Tonprüfung freigegeben. Der Teleprompter ist bereit für Ihre Aufnahme in Schritt 03.';
+          setBanner('PASS', 'VORPRÜFUNG ABGESCHLOSSEN', msg);
+          await playCoachAudio(null, msg);
+        }
+      } else {
+        const nextCorrection = remainingOpen.map(c => c.correction).filter(Boolean).join(' ');
+        const hasFail = remainingOpen.some(c => (c.original_status || c.status) === 'FAIL');
+        setBanner(hasFail ? 'FAIL' : 'WARN', lastChecksStage === 'visual' ? '2A KAMERABILD' : '2B TON & SPRECHTEMPO', nextCorrection);
+      }
+    }
+
+    async function runScriptPrep() {
+      const btn = document.getElementById('btnRunScript');
+      const showId = document.getElementById('showSelect').value;
+      const articleText = document.getElementById('articleInput').value;
+      btn.disabled = true;
+      btn.textContent = 'Teleprompter-Skript wird erstellt…';
+      setBanner('INFO', 'MANUSKRIPT', 'Vollständiges 5-teiliges Teleprompter-Skript wird gemäss SKILL.md generiert…');
+      try {
+        const resp = await fetch('/api/script-prep', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ show_id: showId, article_text: articleText })
+        });
+        const data = await resp.json();
+        applyScriptDataToUI(data);
+        setBanner('PASS', 'MANUSKRIPT GESPEICHERT', 'Neues 5-teiliges Teleprompter-Manuskript erstellt und für die Aufnahme hinterlegt.');
+      } catch (e) {
+        setBanner('FAIL', 'FEHLER', 'Manuskript-Aufbereitung fehlgeschlagen: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Aus Entwurf neues 5-teiliges Teleprompter-Skript erstellen';
+      }
+    }
+
+    async function runSingleVisualCheck() {
+      if (isCheckingInFlight) return null;
+      isCheckingInFlight = true;
+      stopCoachAudio();
+      document.getElementById('audioTestPromptOverlay').classList.add('hidden');
+      const showId = document.getElementById('showSelect').value;
+      const customFrame = captureWebcamBase64();
+      const attemptNum = currentTurnVisual;
+      setBanner('INFO', '2A KAMERABILD', `Kamerabild (Messung #${attemptNum}) wird gegen ${showId}/SKILL.md geprüft…`, `Bild #${attemptNum}`);
+      try {
+        const resp = await fetch('/api/preflight/visual', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            show_id: showId,
+            turn: attemptNum,
+            custom_frame_b64: customFrame,
+            ignored_check_ids: Array.from(ignoredVisualChecks),
+            voice_enabled: voiceCoachEnabled,
+            voice_name: selectedVoiceName
+          })
+        });
+        const data = await resp.json();
+        document.getElementById('lastCheckLatency').textContent = `Bild #${attemptNum} (${data.latency_ms} ms)`;
+        renderCheckCards(data.checks, data.delta_note, 'visual');
+        setBanner(data.overall_visual_status, '2A KAMERABILD', data.studio_banner_de, `Bild #${attemptNum}`);
+        currentTurnVisual++;
+        isCheckingInFlight = false;
+        await playCoachAudio(data.tts_audio_b64, data.studio_banner_de);
+        return data;
+      } catch (e) {
+        isCheckingInFlight = false;
+        setBanner('FAIL', 'FEHLER', 'Bildprüfung fehlgeschlagen: ' + e.message);
+        return null;
+      }
+    }
+
+    async function runSingleAudioCheck(manualTrigger = false) {
+      if (isCheckingInFlight) return null;
+      isCheckingInFlight = true;
+      // Stop any speaking coach voice BEFORE opening the microphone!
+      stopCoachAudio();
+
+      // If user explicitly clicked "2B · Ersten Satz neu einsprechen", clear prior audio overrides so new attempt is evaluated fresh
+      if (manualTrigger) {
+        ignoredAudioChecks.clear();
+      }
+
+      const attemptNum = currentTurnAudio;
+      const showId = document.getElementById('showSelect').value;
+      const btnAudio = document.getElementById('btnSingleAudio');
+      btnAudio.disabled = true;
+      btnAudio.textContent = `Aufnahme #${attemptNum} läuft (4s)…`;
+
+      // Show dedicated Sentence-1 prompt overlay (without touching #teleprompterOverlay!)
+      document.getElementById('teleprompterOverlay').classList.add('hidden');
+      const promptOverlay = document.getElementById('audioTestPromptOverlay');
+      promptOverlay.classList.remove('hidden');
+      document.getElementById('audioTestSentenceDisplay').textContent = '«' + firstSentenceText + '»';
+
+      const statusBox = document.getElementById('audioTestStatusBox');
+      statusBox.classList.remove('hidden');
+      document.getElementById('audioAttemptTitle').textContent = `Tonmessung #${attemptNum} — Bitte jetzt sprechen`;
+      document.getElementById('audioAttemptStats').textContent = '4.2s Mikrofon-Aufnahme…';
+
+      setBanner('INFO', `2B TONMESSUNG #${attemptNum}`, 'Bitte lesen Sie jetzt den eingeblendeten ersten Satz laut vor…', `Ton #${attemptNum}`);
+      const customAudio = await recordMicSnippetWithCountdown(4200);
+
+      setBanner('INFO', `2B AUSWERTUNG #${attemptNum}`, `Tonmessung #${attemptNum} wird mit FFmpeg EBUR128 und Gemini analysiert…`, `Ton #${attemptNum}`);
+
+      try {
+        const resp = await fetch('/api/preflight/audio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            show_id: showId,
+            turn: attemptNum,
+            word_count: firstSentenceWords,
+            first_sentence: firstSentenceText,
+            custom_audio_b64: customAudio,
+            ignored_check_ids: Array.from(ignoredAudioChecks),
+            voice_enabled: voiceCoachEnabled,
+            voice_name: selectedVoiceName
+          })
+        });
+        const data = await resp.json();
+        promptOverlay.classList.add('hidden');
+
+        const tel = data.telemetry || {};
+        document.getElementById('lastCheckLatency').textContent = `Ton #${attemptNum}: ${tel.lufs} LUFS · ${tel.wpm} WPM (${data.latency_ms} ms)`;
+        document.getElementById('audioAttemptTitle').textContent = `Tonmessung #${attemptNum} (${data.timestamp || 'gerade eben'})`;
+        document.getElementById('audioAttemptStats').textContent = `${tel.lufs} LUFS · Spitze ${tel.peak_db} dBFS · ${tel.wpm} WPM (${tel.speech_duration_sec || tel.duration_sec}s Sprechzeit)`;
+
+        const pbWrap = document.getElementById('audioPlaybackWrap');
+        pbWrap.classList.remove('hidden');
+        document.getElementById('audioTranscriptLine').textContent = data.heard_transcript
+          ? `Erkannt (${tel.spoken_words || 0} Wörter): «${data.heard_transcript}»`
+          : 'Kein klares Sprachtranskript erkannt.';
+        if (data.audio_url) {
+          const ap = document.getElementById('audioAttemptPlayer');
+          ap.src = data.audio_url;
+        }
+
+        // Render history of all attempts so user sees every retry clearly
+        const hist = data.audio_history || [];
+        document.getElementById('audioHistoryList').innerHTML = hist.map(h =>
+          `<div>Versuch #${h.turn} (${h.timestamp}): ${h.telemetry?.lufs} LUFS · ${h.telemetry?.wpm} WPM (${h.telemetry?.speech_duration_sec}s) → ${h.overall_audio_status}</div>`
+        ).join('');
+
+        renderCheckCards(data.checks, data.delta_note || '', 'audio');
+        setBanner(data.overall_audio_status, `2B TON & TEMPO (#${attemptNum})`, data.studio_banner_de, `Ton #${attemptNum}`);
+        currentTurnAudio++;
+        isCheckingInFlight = false;
+        btnAudio.disabled = false;
+        btnAudio.textContent = `2B · Ersten Satz neu einsprechen (Versuch #${currentTurnAudio})`;
+
+        await playCoachAudio(data.tts_audio_b64, data.studio_banner_de);
+        return data;
+      } catch (e) {
+        promptOverlay.classList.add('hidden');
+        isCheckingInFlight = false;
+        btnAudio.disabled = false;
+        btnAudio.textContent = '2B · Ersten Satz neu einsprechen (4s)';
+        setBanner('FAIL', 'FEHLER', 'Tonprüfung fehlgeschlagen: ' + e.message);
+        return null;
+      }
+    }
+
+    function toggleHandsFreeLoop() {
+      if (handsFreeTimer) {
+        stopHandsFreeLoop();
+        setBanner('INFO', 'PAUSIERT', 'Automatische Vorprüfung wurde angehalten.');
+        return;
+      }
+      currentLoopStage = 'visual';
+      const btn = document.getElementById('btnAutoPreflight');
+      btn.textContent = 'Auto-Prüfung anhalten';
+      btn.className = 'col-span-2 py-2.5 px-4 bg-[#B45309] text-white text-xs font-medium flex items-center justify-center gap-2 transition';
+      executeNextHandsFreeStep();
+    }
+
+    function stopHandsFreeLoop() {
+      if (handsFreeTimer) {
+        clearInterval(handsFreeTimer);
+        handsFreeTimer = null;
+      }
+      document.getElementById('countdownBox').classList.add('hidden');
+      const btn = document.getElementById('btnAutoPreflight');
+      btn.textContent = 'Auto-Prüfung starten (4-Sekunden-Intervall)';
+      btn.className = 'col-span-2 btn-primary py-2.5 px-4 text-xs font-medium flex items-center justify-center gap-2';
+    }
+
+    async function executeNextHandsFreeStep() {
+      document.getElementById('countdownBox').classList.add('hidden');
+      if (currentLoopStage === 'visual') {
+        const bA = document.getElementById('stepLoopABadge');
+        if (!bA.textContent.includes('✓')) {
+          bA.className = 'px-2 py-0.5 bg-stone-900 text-white font-medium';
+          bA.textContent = '2A Bild';
+        }
+        const res = await runSingleVisualCheck();
+        if (!handsFreeTimer && document.getElementById('btnAutoPreflight').textContent.includes('anhalten') === false) return;
+        if (res && res.overall_visual_status === 'PASS') {
+          currentLoopStage = 'audio';
+          bA.className = 'px-2.5 py-0.5 bg-[#15803D] text-white font-semibold transition-all';
+          bA.textContent = '✓ 2A Bild gelöst';
+          const bB = document.getElementById('stepLoopBBadge');
+          bB.className = 'px-2 py-0.5 bg-stone-900 text-white font-medium';
+          bB.textContent = '2B Ton';
+          scheduleNextTick(3);
+        } else {
+          scheduleNextTick(4);
+        }
+      } else if (currentLoopStage === 'audio') {
+        const res = await runSingleAudioCheck(false);
+        if (res && (res.overall_audio_status === 'PASS' || res.ready_to_record)) {
+          const bB = document.getElementById('stepLoopBBadge');
+          bB.className = 'px-2.5 py-0.5 bg-[#15803D] text-white font-semibold transition-all';
+          bB.textContent = '✓ 2B Ton gelöst';
+          stopHandsFreeLoop();
+          setBanner('PASS', 'VORPRÜFUNG ABGESCHLOSSEN', 'Kamera, Ausleuchtung, Pegel und Sprechtempo sind freigegeben.');
+        } else {
+          scheduleNextTick(4);
+        }
+      }
+    }
+
+    function scheduleNextTick(seconds) {
+      countdownRemaining = seconds;
+      const cBox = document.getElementById('countdownBox');
+      const cNum = document.getElementById('countdownNumber');
+      cBox.classList.remove('hidden');
+      cNum.textContent = countdownRemaining + 's';
+      if (handsFreeTimer) clearInterval(handsFreeTimer);
+      handsFreeTimer = setInterval(() => {
+        countdownRemaining--;
+        if (countdownRemaining <= 0) {
+          clearInterval(handsFreeTimer);
+          handsFreeTimer = null;
+          executeNextHandsFreeStep();
+        } else {
+          cNum.textContent = countdownRemaining + 's';
+        }
+      }, 1000);
+    }
+
+    function resetPreflightTurns() {
+      stopHandsFreeLoop();
+      currentTurnVisual = 1;
+      currentTurnAudio = 1;
+      currentLoopStage = 'visual';
+      ignoredVisualChecks.clear();
+      ignoredAudioChecks.clear();
+      prevCheckStatusByStage = { visual: {}, audio: {} };
+      document.getElementById('btnOverrideAllBanner').classList.add('hidden');
+      document.getElementById('audioTestStatusBox').classList.add('hidden');
+      document.getElementById('checksProgressBadge').classList.add('hidden');
+      document.getElementById('checksProgressBarWrap').classList.add('hidden');
+      document.getElementById('btnSingleAudio').textContent = '2B · Ersten Satz neu einsprechen (4s)';
+      const bA = document.getElementById('stepLoopABadge');
+      bA.className = 'px-2 py-0.5 bg-stone-900 text-white font-medium';
+      bA.textContent = '2A Bild';
+      const bB = document.getElementById('stepLoopBBadge');
+      bB.className = 'px-2 py-0.5 bg-stone-100 text-stone-500';
+      bB.textContent = '2B Ton';
+      setBanner('INFO', 'ZURÜCKGESETZT', 'Messzähler und Übersteuerungen wurden auf Messung #1 zurückgesetzt.');
+    }
+
+    async function toggleWebcamRecording() {
+      const btn = document.getElementById('btnRecordTake');
+      const recBadge = document.getElementById('recTimerBadge');
+      if (mediaRecorderTake && mediaRecorderTake.state === 'recording') {
+        mediaRecorderTake.stop();
+        stopTeleprompterAutoScroll();
+        clearInterval(recTimerInterval);
+        recBadge.classList.add('hidden');
+        btn.textContent = 'Rohschnitt & Mastering (-16 LUFS) werden berechnet…';
+        btn.disabled = true;
+        return;
+      }
+      if (!webcamStream) {
+        alert('Bitte erlauben Sie den Zugriff auf Kamera und Mikrofon im Browser.');
+        return;
+      }
+
+      stopCoachAudio();
+      document.getElementById('audioTestPromptOverlay').classList.add('hidden');
+      renderTeleprompterMonitorHtml();
+      toggleTeleprompterOverlay(true);
+      resetTeleprompterScroll();
+      startTeleprompterAutoScroll();
+
+      recordedChunksTake = [];
+      mediaRecorderTake = new MediaRecorder(webcamStream);
+      mediaRecorderTake.ondataavailable = e => { if (e.data && e.data.size > 0) recordedChunksTake.push(e.data); };
+      mediaRecorderTake.onstop = async () => {
+        const blob = new Blob(recordedChunksTake, { type: 'video/webm' });
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          await runPostprod(reader.result);
+          btn.textContent = 'Neue Aufnahme mit Teleprompter starten';
+          btn.disabled = false;
+        };
+        reader.readAsDataURL(blob);
+      };
+      mediaRecorderTake.start();
+      recSeconds = 0;
+      recBadge.classList.remove('hidden');
+      recBadge.textContent = 'REC 00:00';
+      recTimerInterval = setInterval(() => {
+        recSeconds++;
+        const m = String(Math.floor(recSeconds / 60)).padStart(2, '0');
+        const s = String(recSeconds % 60).padStart(2, '0');
+        recBadge.textContent = `REC ${m}:${s}`;
+      }, 1000);
+      btn.textContent = 'Aufnahme beenden & Rohschnitt erstellen';
+      setBanner('FAIL', 'AUFNAHME LÄUFT', 'Lesen Sie das Manuskript vom Teleprompter im Kameramonitor ab. Klicken Sie danach auf «Aufnahme beenden & Rohschnitt erstellen».');
+    }
+
+    async function runPostprod(customVideoB64) {
+      if (!customVideoB64) return;
+      const showId = document.getElementById('showSelect').value;
+      setBanner('INFO', 'ROHSCHNITT & MASTERING', 'Aufnahme wird analysiert (edl.json) und in 16:9 sowie 9:16 (-16.0 LUFS) geschnitten…');
+      try {
+        const resp = await fetch('/api/postprod', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            show_id: showId,
+            custom_video_b64: customVideoB64
+          })
+        });
+        const data = await resp.json();
+        const box = document.getElementById('postprodResultBox');
+        box.classList.remove('hidden');
+        document.getElementById('edlSummaryBadge').textContent = `${data.edl?.original_duration_sec}s → ${data.edl?.final_duration_sec}s`;
+        document.getElementById('edlSummaryText').textContent = data.edl?.summary_de || '';
+        document.getElementById('edlSegmentsList').innerHTML = (data.edl?.segments || []).map(s => {
+          const isKeep = s.action === 'KEEP';
+          const cls = isKeep ? 'text-stone-900 bg-white' : 'text-stone-400 bg-[#F6F5F0] line-through';
+          return `<div class="px-3 py-1.5 ${cls} flex justify-between gap-2">
+            <span>${s.start}s–${s.end}s · ${s.action}</span>
+            <span class="truncate">${s.reason}</span>
+          </div>`;
+        }).join('');
+        document.getElementById('videoMaster16x9').src = data.master_16x9_url;
+        document.getElementById('videoReel9x16').src = data.reel_9x16_url;
+        document.getElementById('downloadMaster16x9').href = data.master_16x9_url;
+        document.getElementById('downloadReel9x16').href = data.reel_9x16_url;
+        setBanner('PASS', 'ROHSCHNITT BEREIT', 'Ihre Aufnahme wurde geschnitten und auf -16.0 LUFS normiert.');
+      } catch (e) {
+        setBanner('FAIL', 'FEHLER', 'Rohschnitt fehlgeschlagen: ' + e.message);
+      }
+    }
+
+    async function loadSkillsFromRegistry() {
+      try {
+        const resp = await fetch('/api/skills');
+        const data = await resp.json();
+        skillsCache = data.skills || [];
+        document.getElementById('skillCountBadge').textContent = skillsCache.length;
+        const sel = document.getElementById('drawerSkillSelect');
+        sel.innerHTML = skillsCache.map(s => `<option value="${s.id}">${s.kind === 'show' ? '[Sendung] ' : '[Modul] '}${s.id}</option>`).join('');
+        onDrawerSkillSelect();
+      } catch (e) {}
+    }
+
+    async function onShowChange() {
+      resetPreflightTurns();
+      const showId = document.getElementById('showSelect').value;
+      const sel = document.getElementById('drawerSkillSelect');
+      if (sel) {
+        sel.value = showId;
+        onDrawerSkillSelect();
+      }
+      document.getElementById('activeSkillTitleInStep2').textContent =
+        showId === 'seneca-show-aktuell' ? 'Aktives Regelwerk: Studio Analyse' : 'Aktives Regelwerk: Finanz Kompakt';
+      await loadTeleprompterScript();
+      setBanner('INFO', 'SENDUNGSFORMAT', `Format-Vorgaben und Teleprompter-Manuskript für «${showId}» geladen.`);
+    }
+
+    function onDrawerSkillSelect() {
+      const id = document.getElementById('drawerSkillSelect').value;
+      const found = skillsCache.find(s => s.id === id);
+      if (found) {
+        document.getElementById('skillMarkdownEditor').value = found.skill_md || '';
+        document.getElementById('drawerSkillResourceName').textContent = found.name || '';
+      }
+    }
+
+    function buildSampleRuleLine(kind) {
+      if (kind === 'coffee') {
+        return '\n- **coffee_mug (Kaffeetassen- & Getränke-Check)**: Es darf KEINE Kaffeetasse, Trinkflasche oder Geschirr im Bild sichtbar sein.';
+      } else if (kind === 'headset') {
+        return '\n- **no_headset (Kopfhörer-Verbot)**: Der Sprecher darf KEINE sichtbaren Kopfhörer, AirPods oder ein Headset tragen (nur Studiomikrofon erlaubt).';
+      } else if (kind === 'smile') {
+        return '\n- **expression (Blickkontakt)**: Der Sprecher blickt direkt in die Kameralinse mit ruhigem, zugewandtem Ausdruck.';
+      }
+      return '';
+    }
+
+    function injectSampleRule(kind) {
+      const ed = document.getElementById('skillMarkdownEditor');
+      const ruleLine = buildSampleRuleLine(kind);
+      const val = ed.value;
+      const idx = val.indexOf('## 3. Post-Production');
+      if (idx !== -1) {
+        ed.value = val.slice(0, idx).trimEnd() + ruleLine + '\n\n' + val.slice(idx);
+      } else {
+        ed.value = val + ruleLine;
+      }
+      document.getElementById('skillSaveStatus').textContent = 'Regel eingefügt — bitte unten speichern.';
+    }
+
+    async function quickAddRuleAndSave(kind) {
+      const showId = document.getElementById('showSelect').value;
+      const found = skillsCache.find(s => s.id === showId);
+      if (!found) return;
+      const ruleLine = buildSampleRuleLine(kind);
+      if (found.skill_md.includes(ruleLine.trim())) {
+        setBanner('INFO', 'REGEL BEREITS AKTIV', `Diese Prüfregel ist bereits in ${showId}/SKILL.md enthalten.`);
+        return;
+      }
+      const val = found.skill_md;
+      const idx = val.indexOf('## 3. Post-Production');
+      const newMd = idx !== -1
+        ? val.slice(0, idx).trimEnd() + ruleLine + '\n\n' + val.slice(idx)
+        : val + ruleLine;
+
+      document.getElementById('drawerSkillSelect').value = showId;
+      document.getElementById('skillMarkdownEditor').value = newMd;
+      setBanner('INFO', 'SKILL REGISTRY UPDATE', `Neue Regel wird in ${showId}/SKILL.md gespeichert…`);
+      await saveSkillToRegistry();
+    }
+
+    async function saveSkillToRegistry() {
+      const id = document.getElementById('drawerSkillSelect').value;
+      const md = document.getElementById('skillMarkdownEditor').value;
+      const btn = document.getElementById('btnSaveSkill');
+      const status = document.getElementById('skillSaveStatus');
+      btn.disabled = true;
+      btn.textContent = 'Wird gespeichert…';
+      try {
+        const resp = await fetch('/api/skills/' + id, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ skill_md: md })
+        });
+        const data = await resp.json();
+        const found = skillsCache.find(s => s.id === id);
+        if (found) found.skill_md = md;
+        status.textContent = `Gespeichert (${data.latency_ms} ms)`;
+        currentTurnVisual = 1;
+        setBanner('PASS', 'SKILL.MD AKTUALISIERT', `«${id}/SKILL.md» wurde in der Skill Registry aktualisiert. Prüfen Sie jetzt das Kamerabild (2A)!`);
+      } catch (e) {
+        status.textContent = 'Fehler: ' + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'In Skill Registry speichern & aktivieren';
+      }
+    }
+
+    function toggleSandboxModal(show) {
+      const el = document.getElementById('sandboxModalBackdrop');
+      if (show) el.classList.remove('hidden');
+      else el.classList.add('hidden');
+    }
+
+    async function runManagedAgentInteraction() {
+      const btn = document.getElementById('btnRunSandbox');
+      const pre = document.getElementById('sandboxOutputPre');
+      const prompt = document.getElementById('sandboxPromptInput').value;
+      btn.disabled = true;
+      btn.textContent = 'Ausführung läuft…';
+      pre.textContent = 'Verbinde mit Agent-Sandbox…';
+      try {
+        const resp = await fetch('/api/managed-agent/interact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+        const data = await resp.json();
+        if (data.environment_id) {
+          document.getElementById('sandboxEnvId').textContent = data.environment_id;
+        }
+        pre.textContent = `[env: ${data.environment_id} | id: ${data.interaction_id} | ${data.latency_ms} ms]\n\n` + (data.output_text || JSON.stringify(data, null, 2));
+      } catch (e) {
+        pre.textContent = 'Fehler: ' + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Anfrage ausführen';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
